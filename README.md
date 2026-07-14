@@ -57,6 +57,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **stay-here**: Stay inside the current project folder. Do not read or borrow from anywhere else on the machine.
 - **no-internet**: Offline mode. Local files only, no network calls.
 - **no-talk**: Silent mode. Just do the work and print the results at the end, no chatter.
+- **dont-use-skills-rn**: Turn the skills layer off. No skill runs on its own until you type a slash command again.
 
 ## Notes
 
