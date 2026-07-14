@@ -31,6 +31,8 @@ Repeat the round above N times, each time re-picking the now-highest-value impro
 
 **Don't manufacture churn to hit the number.** If you genuinely run out of improvements worth making before reaching N, stop and say so — pointless edits that don't improve anything (or that risk degrading a good result) are worse than stopping early. Quality of the rounds beats quantity every time.
 
+**Exception — this does NOT apply when you're inside `/work-until-limit`.** `/improve N` is bounded by a round *count*, so "out of worthwhile rounds → stop" is right here. `/work-until-limit` is bounded by a *quota ceiling*, and there the ceiling wins: running out of improvements to make is not a reason to stop the run, it's a reason to switch to a different kind of useful work (tests, bug hunt, security pass, docs, a real feature) and keep going. Do not use "no manufactured churn" as an excuse to stop a work-until-limit run early — that's a specific trap [[work-until-limit]] calls out.
+
 If N is large and the run is long, this composes with the tools that manage long autonomous work: pair with **`/control`** for a STOP button, **`/work-until-limit`** to bound it by quota, and **`/shutdown-when-done`** to power off at the end. It is not mutually exclusive with any of them.
 
 ## Finish

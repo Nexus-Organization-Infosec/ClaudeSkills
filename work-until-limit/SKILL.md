@@ -119,8 +119,20 @@ Before you stop for *any* reason, name which of those three it is. If your reaso
 - "The project is already past half done" / "it's in good shape now."
 - "Further work seems useless / low-value / diminishing returns."
 - "This is a natural stopping point" / "I've done enough" / "it feels complete."
+- "Every requested item is done and verified, so continuing would be padding."
+- **"Per the `/improve` discipline, padding to the ceiling would be manufactured churn, so I'm stopping honestly."** This one is a trap and it is wrong here — see below.
 
 These are all your *opinion that the work is finished*. The user has already overruled that opinion by telling you to work until the limit. That instruction **is** the decision — so don't re-make it each chunk and don't dress it up as a finding ("I stopped because I genuinely ran out of things to do, not because of the limit" is precisely the sentence this rule exists to prevent).
+
+### The `/improve` "no manufactured churn" rule does NOT authorize stopping here
+
+`/improve` says: don't make pointless marginal edits just to hit a round count. That is true, and it stays true. But it is being misused as a stop excuse, so be exact about what it means when `work-until-limit` is active:
+
+- "No manufactured churn" means **don't pad *one activity* (e.g. improving the same file) with junk edits.** It does **not** mean "stop the run." Those are different. The honest alternative to churning one thing is **switching to a different, genuinely useful kind of work** — not ending the session.
+- `/improve N` is bounded by a *round count*, so "out of worthwhile rounds → stop" is correct there. `work-until-limit` is bounded by the *quota ceiling*, not by whether improvements remain. When the two are combined, the ceiling wins. Running out of improvements to X means go do Y (tests, bug hunt, security audit, docs, a real feature), not stop.
+- "Stopping honestly" is not honest when the user told you to reach 75% and you stopped at 62% because you didn't want to look for more real work. The honest move is to keep finding legitimate work until the ceiling. There is essentially always real, non-churn work on a live app: more tests, edge cases, hardening, a security pass, performance, documentation, the next feature. Go find it.
+
+If you genuinely believe there is *no* real, non-churn work left anywhere in the project before the ceiling — which on a real app is almost never true — then say that explicitly to the user and ask, rather than quietly stopping under the banner of "improve discipline."
 
 ### Running out of one activity is NOT running out of work
 
