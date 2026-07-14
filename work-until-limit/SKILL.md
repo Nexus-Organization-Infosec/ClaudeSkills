@@ -1,11 +1,22 @@
 ---
 name: work-until-limit
-description: Work continuously until the account's usage quota reaches a set ceiling — a session ceiling, a weekly ceiling, or both — and DO NOT stop before it for any other reason (not "task done", not "exhausted findings", not "good enough", not "nothing left worth doing" — switch to other useful work instead). Shows a live percentage bar during the run, then stops cleanly at the ceiling. Invoked as "work-until-limit [<sessionPct>] [weekly <weeklyPct>] [limit-refresh] [shutdownwhendone]" — e.g. "work-until-limit 80" (stop at 80% session), "work-until-limit 90 weekly 90" (stop when session OR week hits 90%), "work-until-limit weekly 90" (weekly only), add "limit-refresh" to bridge an imminent limit reset and keep going, and "shutdownwhendone" to power off when it stops. Use whenever the user asks to keep working/improving until near the usage or weekly limit, run an autonomous session bounded by quota, or "go until I'm about to run out". Compatible with and hands off to the [[shutdown-when-done]] skill.
+description: Work continuously until the account's usage quota reaches a set ceiling — a session ceiling, a weekly ceiling, or both — and DO NOT stop before it for any other reason (not "task done", not "exhausted findings", not "good enough", not "nothing left worth doing" — switch to other useful work instead). Shows a live percentage bar during the run, then stops cleanly at the ceiling. Invoked as "work-until-limit [<sessionPct>] [weekly <weeklyPct>] [limit-refresh] [shutdownwhendone]" — e.g. "work-until-limit 80" (stop at 80% session), "work-until-limit 90 weekly 90" (stop when session OR week hits 90%), "work-until-limit weekly 90" (weekly only), add "limit-refresh" to bridge an imminent limit reset and keep going, and "shutdownwhendone" to power off when it stops. Use whenever the user asks to keep working/improving until near the usage or weekly limit, run an autonomous session bounded by quota, or "go until I'm about to run out". Active ONLY for the message that explicitly invokes it — a new user message that does not re-invoke it ends the mode, so never carry it over from earlier messages or keep working toward a ceiling the user did not just ask for. Compatible with and hands off to the [[shutdown-when-done]] skill.
 ---
 
 # Work Until Limit
 
 Keep doing useful work until the usage quota hits a ceiling the user sets, showing them where the meter is along the way, then stop gracefully — or shut the machine down if they asked for that too.
+
+## CRITICAL: this is active ONLY when the user just asked for it — it never carries over
+
+This mode applies **only to the single user message that explicitly invoked it.** It is NOT a standing mode that persists across messages. Get this wrong and you burn the user's quota against their will.
+
+- **A new user message ends it.** The autonomous chunk-loop continues across *your own* steps within one run — that's fine, it's the run they started. But the moment the **user** sends a new prompt, the run is over. If that new prompt does **not** itself invoke work-until-limit, do NOT resume the loop, do NOT keep working toward a ceiling, and do NOT reason "I was in work-until-limit, so I'll carry on." Just answer the new message as an ordinary, single request and stop.
+- **This is exactly what happens when the user interrupts.** If the user hit stop/escape and typed something new, they are done with the limit run. Treat their new message at face value. Never treat the earlier `work-until-limit` as still in force.
+- **Past messages do not count.** The only thing that activates this skill is the user asking for it in their *current* message. Never infer it from earlier in the conversation, from a checkpoint, or from the fact that a ceiling was mentioned before.
+- **Never start it on your own.** Don't decide to "keep working until the limit" unless the user, in this message, told you to.
+
+In short: no explicit request in the latest user message means no work-until-limit. When in doubt, do the one thing they asked and stop.
 
 ## Compatibility
 
