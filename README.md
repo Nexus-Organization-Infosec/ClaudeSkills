@@ -58,6 +58,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **no-internet**: Offline mode. Local files only, no network calls.
 - **no-talk**: Silent mode. Just do the work and print the results at the end, no chatter.
 - **dont-use-skills-rn**: Turn the skills layer off. No skill runs on its own until you type a slash command again.
+- **just-do-it**: Execute what you asked without the pushback. No opinions on the idea, no complaints about effort, no nagging you to test it.
 
 ## Notes
 
