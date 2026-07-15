@@ -31,6 +31,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **improve**: Run improvement rounds. Each round measures whether the change actually helped and keeps only the wins. Say `improve 10` for ten rounds.
 - **quick-improve**: A handful of small safe tidies, fast.
 - **ultragoal**: Hit the goal, then push past it with up to ten measured improvement rounds.
+- **improve-performance**: Make it faster. Profiles first to find the real bottleneck, fixes the biggest one, then proves the gain with before and after numbers.
 
 ### Fixing and hunting
 - **fix**: Fix a bug, error, or warning the right way. Reproduce it, find the real cause, verify it. Also clears compiler and linter warnings across the project.
