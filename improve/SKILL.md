@@ -29,6 +29,16 @@ If there's no obvious thing to improve (no current project/task in play), ask th
 
 Repeat the round above N times, each time re-picking the now-highest-value improvement given everything done so far. Between rounds, keep the work in a consistent, runnable state.
 
+**What counts as one of the N.** A round is an *attempted improvement*: you picked it, made it, measured it, and kept or reverted it. A revert absolutely counts — you did the work and learned the change doesn't help, which is a real result. These do **not** count toward N:
+
+- a verification or test-running pass where no improvement was attempted,
+- analysis that ends in rejecting a candidate without ever making the change,
+- writing up findings or documentation of what you found.
+
+All three are legitimate and often worth doing, they're just not rounds. So if a candidate gets rejected on analysis — say the fix would need a risky refactor, or it only matters at a scale the project isn't at — that's good judgment: record the measurement and the reason, then **pick a different candidate and do a real round for that slot.** One rejected idea shouldn't cost the user one of their ten.
+
+Deliver N attempted improvements. If you genuinely can't (see below), say the honest number and why — but "8 of 10, because one was a rejection and one was verification" means you owed two more rounds, not that you were done.
+
 **Don't manufacture churn to hit the number.** If you genuinely run out of improvements worth making before reaching N, stop and say so — pointless edits that don't improve anything (or that risk degrading a good result) are worse than stopping early. Quality of the rounds beats quantity every time.
 
 **Exception — this does NOT apply when you're inside `/work-until-limit`.** `/improve N` is bounded by a round *count*, so "out of worthwhile rounds → stop" is right here. `/work-until-limit` is bounded by a *quota ceiling*, and there the ceiling wins: running out of improvements to make is not a reason to stop the run, it's a reason to switch to a different kind of useful work (tests, bug hunt, security pass, docs, a real feature) and keep going. Do not use "no manufactured churn" as an excuse to stop a work-until-limit run early — that's a specific trap [[work-until-limit]] calls out.
