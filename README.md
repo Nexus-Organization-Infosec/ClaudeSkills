@@ -4,7 +4,11 @@ A set of custom skills for Claude Code. Each folder holds one skill and a `SKILL
 
 ## Install
 
-Copy any skill folder into your `~/.claude/skills/` directory. On Windows that is `C:\Users\<you>\.claude\skills\`. Start a new Claude Code session and type `/` to see them, or just describe what you want and the matching skill kicks in on its own.
+**Easy way (Windows):** clone or download the repo, then double click **`installer.bat`**. It copies every skill into your `%USERPROFILE%\.claude\skills\` folder, so it works no matter what your username is. Existing copies get updated in place.
+
+**Manual way:** copy any skill folder into your `~/.claude/skills/` directory. On Windows that is `C:\Users\<you>\.claude\skills\`.
+
+Either way, start a new Claude Code session and type `/` to see them, or just describe what you want and the matching skill kicks in on its own.
 
 Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `play-sound-when-done`) contain scripts with hardcoded Windows paths under one username. Edit those paths to your own before using them.
 
