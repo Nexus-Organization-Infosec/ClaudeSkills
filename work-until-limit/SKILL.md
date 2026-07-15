@@ -142,6 +142,18 @@ security audit → bug hunt → test coverage (raise it, add edge cases) → per
 
 "I can't think of anything worth doing" almost always means "I didn't look hard enough." Re-scan the project and pick the next real improvement. The whole purpose of this mode is to spend the budget **right up to the ceiling** — stopping early because it *feels* like enough is the exact thing this skill exists to prevent, and it wastes the budget the user explicitly asked you to use (and, with `shutdownwhendone`, shuts the machine down before the work you owed them is done).
 
+### Don't fill the run with verification theater
+
+A chunk is supposed to be **work**. Running the test suite, reading the meter, and writing status updates are **overhead** — necessary, but they are not progress. Burning the budget on overhead while the real task goes untouched is a failure mode that *looks* productive (everything's green!) and delivers almost nothing.
+
+- **Verify proportionately.** After a one-line change, run the affected tests, not the whole suite. Save the full suite for a substantive change or once at the end. A full suite after every micro-edit is expensive and tells you nothing new.
+- **"Final verification" happens once.** If you run a "final" full suite and then keep working, it wasn't final. Announcing final verification repeatedly is a reliable tell that you're padding the run with safe busywork.
+- **Read the meter between real chunks**, not after every micro-step. A chunk is a unit of *work*, not a unit of testing.
+- **Never let overhead crowd out the actual task.** This is the important one: **if you can name a substantial remaining task and there is budget left, start it.** Do not spend the run on tests and re-verification and then hand back saying "the natural next task is X" — X was the work you were supposed to be doing. Naming it at the end while having chosen testing instead is not a handoff, it's an admission you avoided the hard part.
+- If a known task genuinely doesn't fit the remaining budget, **say that explicitly and say why** ("media locking needs the delivery-ack reordered, that's ~2 hours of work and I have 3% left"), rather than quietly filling the time with suite runs. The user can then decide.
+
+Bias toward the substantive and the risky over the safe and the green. Tests and verification serve the work; they are not a substitute for it.
+
 ## Step 4: Stop cleanly
 
 When the loop ends:
