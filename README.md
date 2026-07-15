@@ -56,6 +56,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **mask**: Write like a human. No em dashes, and none of the usual signs that give AI writing away.
 - **research**: Search the web for a fix or an answer. Official docs, GitHub issues, Stack Overflow, Reddit, and it weighs the sources.
 - **flutter-design**: Build clean Material 3 (Material You) UI for Android in Flutter, with proper theming, dark mode, and accessibility.
+- **smoothener**: Make a UI feel smooth. Adds tasteful animations, transitions, and polish, with the timing, performance, and reduced motion rules that keep it from backfiring.
 - **sick**: Draft a short, professional message to call in sick.
 
 ### Modes and guardrails
