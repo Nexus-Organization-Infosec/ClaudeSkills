@@ -2,6 +2,12 @@
 
 Copy-paste commands for the pipeline. Needs `ffmpeg` on PATH; Remotion needs Node.
 
+## Windows / Git Bash gotchas (learned the hard way — read these)
+
+- **Complex `-vf` filter strings get mangled by Git Bash.** The colons and slashes (`scale=...:...`, `(ow-iw)/2`) get turned into `;` and `\2`, and paths like `/Windows/...` get rewritten. **Fix:** write the filtergraph to a file and pass it with `-/vf filter.txt` (ffmpeg 7+ reads an option value from a file), or run the ffmpeg line from a `.bat`. Simple commands (record, cut, concat) are fine directly; only the filter graphs need this.
+- **Write the filter file with NO trailing newline** — `-/vf` treats a trailing `\n` as an empty extra filter and errors with "Error parsing a filter description around:". Use `printf '%s' '...' > filter.txt`, not an editor that appends a newline.
+- **`drawtext` fonts on Windows:** do NOT use `font=Arial` (fontconfig often has no config file and segfaults). Use `fontfile=`. And a drive-letter **colon in the font path breaks the filter parser**, even escaped. **Fix:** copy the `.ttf` into the working dir (`cp /c/Windows/Fonts/arialbd.ttf font.ttf`) and reference it colon-free as `fontfile=font.ttf`, running ffmpeg from that dir. Inside the filter, escape commas in expressions: `enable=between(t\,0.5\,4)`.
+
 ## Capture (record the screen)
 
 **OBS** (if installed) — launch already recording, stop via its hotkey or `--shutdown`:
