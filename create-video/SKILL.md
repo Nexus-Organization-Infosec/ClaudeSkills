@@ -9,6 +9,12 @@ Take a video from nothing to a finished MP4: **record it, then edit it clean.** 
 
 **Prerequisites** (check first, tell the user what's missing): `ffmpeg` on PATH (the workhorse), Node + `npx remotion` for overlays/motion graphics, and a transcription tool (`whisper`) if you need a transcript. If something's missing, say so and either install it or work around it.
 
+## How this runs (read first)
+
+- **Everything happens locally, on the user's own PC.** Record, transcribe, cut, compose, and render all with local tools (FFmpeg, Remotion, Whisper) writing to local files. Do NOT push the footage or the edit to a cloud service to do the work. The user's machine is where the video gets made, start to finish.
+- **Launch the STOP button first.** At the very start of a create-video run, launch the [[control]] panel (its red STOP button) so the user can stop gracefully at any point without hard-killing a render mid-write. Then check the flag between steps of the pipeline (after each cut batch, before a long render) — if STOP was pressed, finish the current step cleanly, leave the files in a consistent state, and hand back. Relaunch it on `/continue`.
+- **Do not stop until the edit is actually finished.** This is a long, multi-step job (record → plan → cut → compose → render → verify), and it is not done until there is a final, playable MP4 that has been verified. Don't hand back half-edited at a "good stopping point", don't stop because a step was tedious or slow, and don't call it finished before the render completes and `ffprobe` confirms it plays. See it all the way through to the finished file. The only things that end a run early are: the user pressing STOP (or interrupting), or a real blocker you cannot get past (a missing tool you can't install, footage that won't record) — and then you say exactly what blocked you, not "this looks about done."
+
 ## Layer 1 — Capture
 
 Get the source footage.
