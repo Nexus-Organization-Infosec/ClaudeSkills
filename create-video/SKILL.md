@@ -52,8 +52,12 @@ Use Remotion for the things a plain cut can't do, expressed as code:
 - **Reusable scenes:** templates shared across videos.
 
 Bundled, ready to use (MIT, from the claude-code-video-toolkit — see `assets/NOTICE.txt`):
-- **`assets/transitions/`** — clean, composable transition components. Import these for consistent fades/wipes instead of hand-rolling them (matches "clean transitions").
-- **`assets/brand.json`** — brand tokens (colors, spacing, a type scale, font stacks). Pull styles from here so overlays look coherent, or swap the values for the user's brand.
+- **`assets/lib/components/`** — real, drop-in Remotion effects and overlays: `FilmGrain`, `Vignette`, `AnimatedBackground` (effects); `Label` (lower-thirds), `SplitScreen`, `NarratorPiP` (picture-in-picture), `PointingHand` (annotation), `SlideTransition`, `LogoWatermark` (your own logo/branding), plus decorative `Envelope`/`MazeDecoration`. These are exactly the "motion and effects, not a bare cut" pieces — reach for them first.
+- **`assets/lib/theme/`** — `ThemeProvider` + theme types; wrap your composition in it and drive styles from the theme (pairs with `brand.json`).
+- **`assets/transitions/`** — composable transition components + a gallery, for consistent fades/wipes.
+- **`assets/brand.json`** — brand tokens (colors, spacing, type scale, font stacks). Pull styles from here so everything looks coherent, or swap the values for the user's brand.
+
+Copy the pieces you need into your Remotion project's `src/` (keep the `components/` + `theme/` relative structure, since components import `../theme`).
 
 Compose in `src/`, put segments in `public/segments/`, render with `npx remotion render`.
 

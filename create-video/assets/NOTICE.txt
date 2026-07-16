@@ -1,4 +1,16 @@
-The files in transitions/ and brand.json are adapted from the
-claude-code-video-toolkit by Digital Samba (MIT License):
-https://github.com/digitalsamba/claude-code-video-toolkit
-Bundled here as reusable, non-API design assets (Remotion transitions + brand tokens).
+These assets are adapted from the claude-code-video-toolkit by Digital Samba
+(MIT License): https://github.com/digitalsamba/claude-code-video-toolkit
+
+Bundled here as reusable, NON-API design/motion assets for Remotion:
+  brand.json             - brand design tokens (colors, spacing, type scale)
+  transitions/           - composable transition components + gallery
+  lib/components/        - effects and overlays: FilmGrain, Vignette,
+                           AnimatedBackground, Label, SplitScreen, NarratorPiP
+                           (picture-in-picture), PointingHand, SlideTransition,
+                           LogoWatermark (adds YOUR OWN logo/branding), Envelope,
+                           MazeDecoration
+  lib/theme/             - ThemeProvider + theme types (pairs with brand.json)
+
+Deliberately NOT included from the toolkit: the cloud-AI/API tools (image/voice/
+music generation) and the watermark-removal tools (dewatermark, locate_watermark),
+which conflict with this skill's "no watermarks / never strip a watermark" rule.
