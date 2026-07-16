@@ -44,6 +44,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 ### Cleaning up
 - **cleanup**: Revamp a codebase. Remove dead code, reorganize into folders, tidy names and comments, and keep it running the whole time.
 - **quick-cleanup**: A fast safe tidy. Removes obvious junk, does not move files.
+- **backup**: Make a timestamped full copy of the project into a BACKUP folder, with an infos.txt (time, size, file count, git state). Run it before anything risky.
 
 ### Security
 - **reverse-engineer**: A full security audit of your own project (known CVEs, injection, secrets, weak crypto, and more), then it fixes what it finds.
