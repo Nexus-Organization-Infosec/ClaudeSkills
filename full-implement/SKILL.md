@@ -1,6 +1,6 @@
 ---
 name: full-implement
-description: Turn a shallow, naive, or "toy" implementation into a complete, correct, production-grade one. Most important for security-sensitive things done the easy way (encryption, password hashing, auth, tokens) where "too simple" usually means "insecure", but also naive algorithms, happy-path-only code, and fake robustness. Use whenever the user invokes /full-implement or says "implement this properly", "the encryption is too basic, make it real", "this is a toy version, make it production grade", or "do it the right way, not the shortcut". Never rolls its own crypto; uses vetted standard approaches.
+description: Turn a shallow, naive, or "toy" implementation into a complete, correct, production-grade one. Most important for security-sensitive things done the easy way (encryption, password hashing, auth, tokens) where "too simple" usually means "insecure", but also naive algorithms, happy-path-only code, and fake robustness. Use whenever the user invokes /full-implement or says "implement this properly", "the encryption is too basic, make it real", "this is a toy version, make it production grade", or "do it the right way, not the shortcut". Prefers vetted standard crypto; if a homemade scheme is used, it must be done genuinely correctly, or fall back to the standard library.
 ---
 
 # Full Implement
@@ -17,11 +17,11 @@ This is not [[placeholder-replacer]] (that fills in literal stubs and TODOs). He
 - **Happy-path only.** No input validation, no error handling, ignores empty / huge / malformed / concurrent cases.
 - **Fake robustness.** In-memory where it must persist, no timeout/retry on network, no transaction where one is needed.
 
-## The crypto rule: never roll your own
+## The crypto rule: get it genuinely right
 
-This is the single most important rule, because "too easy" crypto is almost always insecure crypto, and insecure crypto looks like it works.
+"Too easy" crypto is almost always insecure crypto, and the dangerous part is that insecure crypto still looks like it works. So the bar is high.
 
-- **Use vetted, standard primitives from a real library. Never a homemade scheme.**
+- **Prefer vetted, standard primitives from a real library. If you are going to implement a homemade encryption scheme, make sure it is genuinely right and very well done** — that means building on established primitives (do not invent your own cipher or hash from scratch), getting the whole construction correct (authenticated encryption so tampering is detected, a fresh random nonce/IV every single time with no reuse, proper key derivation, constant-time comparisons for secrets), and testing it hard against tampering, replay, nonce-reuse, and the known attack patterns for that construction. Document exactly what it does and why it is secure, and where you can, get it reviewed. A homemade scheme that is subtly wrong is worse than none, so if you are not confident it is airtight, fall back to the standard library.
 - **Encryption:** authenticated encryption — AES-GCM, or libsodium/NaCl secretbox / XChaCha20-Poly1305. A random per-message nonce/IV, never reused, never hardcoded.
 - **Passwords:** Argon2id (preferred), bcrypt, or scrypt, each with a per-user salt. Never MD5/SHA1/plain-SHA256.
 - **Keys:** derive with a real KDF (HKDF, Argon2, or PBKDF2 with a high iteration count). Store them securely. Never hardcode a key.
@@ -44,7 +44,7 @@ If you change a stored format — re-hashing passwords, re-encrypting data, a ne
 
 ## What not to do
 
-- **Never invent your own cryptographic scheme.** Ever.
+- **Don't ship a homemade cryptographic scheme unless it is genuinely correct, tested, and ideally reviewed.** If you are not sure it is airtight, use the standard library instead. A broken homemade scheme is worse than none, because it gives false confidence.
 - Don't disable a security check to make it pass.
 - Don't half-build the real version and quietly leave the toy fallback in place.
 - Don't over-engineer past what the project needs. Production-grade means correct and complete, not gold-plated.
