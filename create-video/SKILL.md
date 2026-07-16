@@ -7,7 +7,9 @@ description: Record and edit a real video end to end — capture the screen (OBS
 
 Take a video from nothing to a finished MP4: **record it, then edit it clean.** The pipeline is a stack of layers, each doing the part it's best at. Full command library is in `references/commands.md` — read it and copy the exact commands from there.
 
-**Prerequisites** (check first, tell the user what's missing): `ffmpeg` on PATH (the workhorse), Node + `npx remotion` for overlays/motion graphics, and a transcription tool (`whisper`) if you need a transcript. If something's missing, say so and either install it or work around it.
+**Prerequisites** (check first, tell the user what's missing): `ffmpeg` on PATH (the workhorse), Node + `npx remotion` for overlays/motion graphics, and a transcription tool (`whisper`) if you need a transcript.
+
+**Installing editing tools is allowed — up to 10GB.** If a needed tool is missing, go ahead and install it; you don't have to ask. The one limit: **do not install any single tool, model, or download larger than 10GB.** Check the size before installing anything big, and if it would exceed 10GB, stop, tell the user, and offer a smaller option (for example a smaller Whisper model like `small` or `base` instead of `large`, or a lighter package) or a workaround. Under 10GB, just install it and carry on.
 
 ## How this runs (read first)
 
