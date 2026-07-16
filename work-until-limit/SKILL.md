@@ -48,7 +48,10 @@ At least one ceiling must be set. If the user gave neither a number nor `weekly 
 
 ```bash
 printf 'SESSION=%s\nWEEKLY=%s\n' <sessionPct-or-0> <weeklyPct-or-0> > .claude/wul-config
+printf 'SESSION=0\nWEEKLY=0\n' > .claude/wul-banked   # progress banked from resets, starts at 0
 ```
+
+The `wul-banked` file matters for resets — see "Resets bank your progress" in Step 3. It starts at 0 for a fresh run.
 
 The ceiling is **exactly** the number the user gave — never round it, approximate it, or substitute a remembered value. If you are ever unsure what it was, `cat .claude/wul-config`; do not guess. If the user said weekly 99, every check uses 99 — not 96, not "about 95."
 
@@ -80,17 +83,34 @@ Loop:
    printf '%s SESSION=%s WEEK=%s\n' "$(date '+%H:%M:%S')" "$SESSION" "$WEEK" >> .claude/wul-log
    ```
    Then compute the jump for each bounded limit from the previous logged reading: `session_delta = SESSION_now − SESSION_prev`, `week_delta = WEEK_now − WEEK_prev`. These estimate how much the next comparable chunk will add. Keep a running `max` of each from the log (default to a safety floor of ~4% for session until you've observed real jumps, since high-context turns are large; weekly moves slower, so a smaller floor like ~1% is fine). Reading the max jump from the logged history — rather than just the last two points — makes the predictive stop more robust to one unusually small gap.
-4. **Show the user the bar with the trend** for whichever limits are bounded, e.g.:
-   `Usage: session [##############------] 72% (+4%) · week 61% (+1%) · ceilings 90/90`
-5. **Decide.** The base rule is simple — **reaching the ceiling is the goal**, so stop when `SESSION >= sessionCeiling` (or `WEEK >= weeklyCeiling`). The predictive headroom is an *extra* early-stop that applies **only when the ceiling is near the real hard limit**, because that's the only time overshoot actually costs you (lockout).
+
+   **Bank progress across resets, and work with EFFECTIVE progress from here on.** The ceiling is the *total* budget for the whole run, not a fresh allowance each time a limit resets. So detect a reset: if a reading *dropped* sharply from the previous one (e.g. session 61 → 2 — normal work only pushes usage *up*, so a big drop means the limit rolled over). On a reset, add the pre-reset value (the peak just before the drop) into `.claude/wul-banked` for that limit:
+   ```bash
+   # session reset detected; PREV_SESSION was the peak just before the drop:
+   b=$(grep '^SESSION=' .claude/wul-banked | cut -d= -f2); nb=$((b + PREV_SESSION))
+   sed -i "s/^SESSION=.*/SESSION=$nb/" .claude/wul-banked
+   ```
+   Your **effective progress** toward each ceiling is `banked + current`: `eff_session = banked_session + SESSION`, `eff_week = banked_week + WEEK`. From here on the ceiling is compared against *effective* progress, not the raw meter. (Before any reset, banked is 0, so effective equals the raw reading and nothing changes.)
+4. **Show the user the bar with the trend**, and show effective vs raw when a reset has banked anything, e.g.:
+   `Usage: session 22% + 20% banked = 42% of 40 ceiling` — otherwise just `session [##############------] 72% (+4%) · ceiling 90`.
+5. **Decide — using EFFECTIVE progress.** The base rule is simple — **reaching the ceiling is the goal**, so stop when `eff_session >= sessionCeiling` (or `eff_week >= weeklyCeiling`). The predictive headroom is an *extra* early-stop that applies **only when the ceiling is near the real hard limit**, because that's the only time overshoot actually costs you (lockout).
    - `STATUS=UNKNOWN`/`TIMEOUT` → follow the fallback agreed in Step 2.
-   - **Is the ceiling near the real limit?** Danger zone ≈ **session ceiling ≥ 90%** or **weekly ceiling ≥ 95%**. Overshooting a ceiling *in* the danger zone risks crossing 100% → days of lockout; overshooting a ceiling *below* it (e.g. a 10% session target) is harmless — you're nowhere near the real limit.
-   - **Ceiling in the danger zone → apply predictive headroom** (stop a chunk early): `SESSION + max_session_delta >= sessionCeiling` → stop; likewise `WEEK + max_week_delta >= weeklyCeiling` → stop. Better to stop a hair short than get locked out.
-   - **Ceiling below the danger zone → do NOT stop early.** Just stop when you actually reach it (`SESSION >= sessionCeiling`). A single in-flight chunk nudging slightly past a low soft target does no harm, whereas stopping 3% short of a 10% target throws away a third of the budget the user allowed. Use the whole budget they set.
-   - When you stop, tell the user *which* ceiling triggered it and whether it was a reach or a predictive stop. **If `limit-refresh` is enabled, first check whether that limit is about to reset — see below before actually stopping.**
+   - **Is the ceiling near the real limit?** Danger zone ≈ **session ceiling ≥ 90%** or **weekly ceiling ≥ 95%**. Overshooting a ceiling *in* the danger zone risks crossing 100% → days of lockout; overshooting a ceiling *below* it (e.g. a 10% session target) is harmless — you're nowhere near the real limit. (The danger check uses the *raw* current meter, since lockout is about the real 100% wall; the soft target check uses effective progress.)
+   - **Ceiling in the danger zone → apply predictive headroom** (stop a chunk early): `eff_session + max_session_delta >= sessionCeiling` → stop; likewise for week. Better to stop a hair short than get locked out.
+   - **Ceiling below the danger zone → do NOT stop early.** Just stop when effective progress actually reaches it (`eff_session >= sessionCeiling`). A single in-flight chunk nudging slightly past a low soft target does no harm, whereas stopping 3% short throws away budget the user allowed.
+   - When you stop, tell the user *which* ceiling triggered it and whether it was a reach or a predictive stop, and note any banked amount. **If `limit-refresh` is enabled, first check whether that limit is about to reset — see below before actually stopping.**
    - otherwise → continue with the next chunk.
 
 So for a **danger-zone ceiling** the effective stop lands *at or just under* it (protecting against lockout); for a **soft ceiling below the danger zone** you run all the way to it and may drift a hair past — which is fine and is what "use the whole budget" means. The predictive headroom is lockout insurance, not a reason to leave a low target's budget unspent.
+
+### Resets bank your progress — the ceiling is a cumulative budget
+
+This is the key rule for resets: **the ceiling counts total work across the whole run, so a reset does not hand you a fresh full budget.** What you already spent before the reset is banked and subtracted from what's left.
+
+- **Worked example (the user's):** ceiling **40**, you work up to **20%**, then the session limit resets to 0. Bank the 20. Keep working after the reset, and stop when the *new* meter reaches **20%** — because banked 20 + current 20 = **40**. Total spent across the reset is the 40 they asked for, not 60.
+- Each limit banks separately (`SESSION` and `WEEK` in `wul-banked`). Session/daily resets every few hours, so it's the usual case; weekly rarely resets mid-run, but the same rule applies if it does.
+- **This survives interruptions.** `wul-banked`, `wul-config`, and `wul-log` are on disk, so if the session is cut off (or `/usage` goes briefly self-inconsistent, like the 0/0 you saw), a later `/continue` reads them back and resumes toward the *remaining* budget, not the full ceiling again.
+- It composes with `limit-refresh`: bridging waits out an imminent reset; banking then makes sure the post-reset work only fills the remainder, not a whole second ceiling.
 
 ### If `limit-refresh` is enabled: bridge an imminent reset instead of stopping
 

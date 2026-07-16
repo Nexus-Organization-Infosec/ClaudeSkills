@@ -9,6 +9,8 @@ description: The user is back at the keyboard — resume work. This lifts the "a
 
 There are two distinct situations this skill has to cover, and the very first thing to do is figure out which one applies — the recovery paths are different.
 
+**If a `work-until-limit` run was cut off, resume it toward the *remaining* budget.** If `.claude/wul-config`, `.claude/wul-banked`, and `.claude/wul-log` exist, a quota-bounded run was interrupted (a reset, a `/usage` glitch, or a cutoff). Read them and continue toward the ceiling using banked + current progress — do NOT restart toward the full ceiling. Only do this if the user asks to resume it; otherwise leave the files and treat their new message normally (per work-until-limit's "active only when invoked" rule).
+
 **Before resuming in either case, confirm the baseline is healthy.** An interruption can leave a half-applied edit, a broken import, or a failing state behind. Run the project's quick tests or build first to check you're resuming from known-good ground — building new work on top of a broken interrupted state just compounds the mess. If the baseline is broken, fix that first, then continue.
 
 ## Step 1: Look for an explicit checkpoint
