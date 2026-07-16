@@ -49,12 +49,23 @@ List what shipped, one line each, with a note that each is verified working. The
 - anything you flagged instead of building, and why (needs a decision, too big, risky),
 - anything that turned out shallower than intended.
 
-## The quality bar
+## Deliver N — refusing is almost always under-looking
+
+`new-features N` means **build N features.** The default, overwhelmingly, is that you deliver N. On any real app there is a deep well of features that genuinely fit — look at the domain, at what comparable apps have, at what users expect, at the [[later-ideas]] backlog, at the obvious missing basics. A chat app alone has dozens of natural features. If you think there aren't N worth building, you almost certainly didn't look hard enough. Look again before concluding otherwise.
+
+**This is NOT `/improve`, and the "no manufactured churn" rule does not govern it.** That rule is about not making pointless *edits* to hit a round count. Here the user asked for *features*, and the bar is simply "does it fit the app and does it work" — not "is it a huge improvement." Do not cite churn-avoidance as a reason to build fewer than N. Finding features that fit is the job, and it's almost always doable.
+
+**Bug fixes, refactors, and reliability work are NOT features.** A feature is new user-facing functionality that wasn't there before. Fixing an offline banner, a lockout, or a flaky check is valuable, but it does **not** count toward `new-features N`. If the user asked for 5 features, doing 5 bug fixes and reporting "done" is not delivering what they asked. Those belong to [[fix]] or [[bug-hunt]]; build the actual features here.
+
+### The quality bar (once you're building the right things)
 
 - **Complete beats numerous.** Hitting N with junk is failure. A "feature" that is a settings toggle wired to nothing is not a feature.
-- **Fits beats clever.** Do not bolt unrelated things onto the app to pad the count. A note taking app does not need a crypto ticker.
+- **Fits beats clever.** Don't bolt genuinely unrelated things on to pad the count. A note-taking app does not need a crypto ticker. But "it must *fit*" is a filter on *which* features, not an excuse to build none — there are always fitting ones.
 - **Working beats demoed.** If you cannot exercise it, you are not done.
-- If you genuinely cannot find N features worth building for this project, build the good ones and say plainly how many were real, rather than inventing filler. On most real apps there is plenty left, so look properly before concluding that.
+
+### The one honest exception
+
+If, after looking hard, you truly believe fewer than N features genuinely fit, do NOT silently build fewer and move on. Instead: build the ones you're confident in, then **list concrete candidate features for the rest and ask the user which they want** (or propose your best picks). Hand the decision back with real options, rather than deciding for them that the app is "done enough." Declining to build without offering alternatives is the failure this note exists to prevent.
 
 ## Notes
 
