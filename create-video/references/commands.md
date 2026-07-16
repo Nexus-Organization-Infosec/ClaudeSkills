@@ -96,6 +96,37 @@ ffmpeg -i assembled.mp4 -i music.mp3 -filter_complex \
   -map 0:v -map "[a]" -c:v copy final.mp4
 ```
 
+## Transitions and effects (do NOT ship a bare cut)
+
+**Transitions between segments** with FFmpeg `xfade` (offset = when the transition starts):
+```
+# crossfade two clips (types: fade, wipeleft, slideup, circleopen, dissolve, smoothleft, radial, ...)
+ffmpeg -i a.mp4 -i b.mp4 -filter_complex \
+  "[0][1]xfade=transition=smoothleft:duration=0.6:offset=4.4" out.mp4
+```
+For many segments, chain xfades, or use Remotion transitions (the bundled `../assets/transitions/`) for consistency.
+
+**Ken Burns (slow zoom/pan on stills or flat footage)** — adds life to static shots:
+```
+ffmpeg -i clip.mp4 -vf "zoompan=z='min(zoom+0.0008,1.15)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,fps=30" -c:v libx264 out.mp4
+```
+
+**Animated title** (slide/fade a caption in, not a static box). Use `alpha` and `x` as functions of time in `drawtext`:
+```
+# fade a title in over 0.5s and out, moving up slightly (put the filter in a file, see gotchas above)
+drawtext=fontfile=font.ttf:text=The Claude App:fontcolor=white:fontsize=110:x=(w-text_w)/2:y=(h-text_h)/2-40*t:alpha='if(lt(t,0.5),t/0.5,if(lt(t,3.5),1,if(lt(t,4),(4-t)/0.5,0)))':enable=between(t\,0\,4)
+```
+
+**Color grade / punch** (light, tasteful):
+```
+ffmpeg -i in.mp4 -vf "eq=contrast=1.06:saturation=1.08:brightness=0.01,unsharp=5:5:0.5" -c:v libx264 out.mp4
+```
+
+**Burn-in captions** from an SRT (great for social):
+```
+ffmpeg -i in.mp4 -vf "subtitles=captions.srt:force_style='Fontsize=22,Outline=2,Shadow=0'" -c:v libx264 out.mp4
+```
+
 ## Remotion (programmable composition for overlays / motion graphics)
 
 Setup once:
