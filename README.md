@@ -39,7 +39,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **quick-fix**: Patch a known bug fast with little talk.
 - **bug-hunt**: Hunt the whole codebase for bugs of every size, from crashes to tiny edge cases, then fix them.
 - **placeholder-replacer**: Find stub, fake, simulated, and cut off code and replace it with real working code.
-- **full-implement**: Turn a shallow or toy implementation into a real, production grade one. Built for things done the easy way, like weak encryption, where too simple means insecure. Never rolls its own crypto.
+- **full-implement**: Turn shallow, easy, barely working code into valuable, deploy ready implementations. Encourages real custom solutions, custom encryption included, done well and tested.
 
 ### Cleaning up
 - **cleanup**: Revamp a codebase. Remove dead code, reorganize into folders, tidy names and comments, and keep it running the whole time.
