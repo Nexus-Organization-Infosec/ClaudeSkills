@@ -1,0 +1,4 @@
+The files in transitions/ and brand.json are adapted from the
+claude-code-video-toolkit by Digital Samba (MIT License):
+https://github.com/digitalsamba/claude-code-video-toolkit
+Bundled here as reusable, non-API design assets (Remotion transitions + brand tokens).

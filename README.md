@@ -59,6 +59,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **research**: Search the web for a fix or an answer. Official docs, GitHub issues, Stack Overflow, Reddit, and it weighs the sources.
 - **flutter-design**: Build clean Material 3 (Material You) UI for Android in Flutter, with proper theming, dark mode, and accessibility.
 - **smoothener**: Make a UI feel smooth. Adds tasteful animations, transitions, and polish, with the timing, performance, and reduced motion rules that keep it from backfiring.
+- **create-video**: Record and edit a real video end to end. Screen capture, transcribe and plan, FFmpeg cuts, Remotion overlays and motion graphics, music, social reframing, final render. Non-watermarked assets only.
 - **sick**: Draft a short, professional message to call in sick.
 
 ### Modes and guardrails
