@@ -41,7 +41,11 @@ Fixing the shared interface in advance is what lets independent agents integrate
 
 ## Step 3: Launch them in parallel
 
-Dispatch all the agents **in a single message** (multiple Agent calls in one turn) so they run concurrently. Subagents run in the background by default — you'll be notified as each finishes. Note each agent's id/name so you can follow up via `SendMessage` (same context) if a brief needs a tweak, rather than re-spawning cold.
+**The default and preferred way — native background sub-agents (they truly run at the same time).** Dispatch all the agents **in a single message** (multiple `Agent` tool calls in one turn, each `run_in_background`). The harness runs them **concurrently** — the three models work simultaneously, not one after another — and notifies you as each finishes. This is real parallelism; you do NOT need `cmd`, headless `claude -p`, or any external batching to get it. Note each agent's id/name so you can follow up via `SendMessage` (same context) if a brief needs a tweak, rather than re-spawning cold.
+
+Set the model per call: `model: "opus"` for the core stream, `"sonnet"` for secondary, `"haiku"` for the light work. That's what makes it a multi-model swarm rather than three copies of the same model.
+
+**Alternative — headless OS processes (only if the user wants separate visible terminals).** You can instead spawn real background processes with the Bash tool: `claude -p "<self-contained brief>" &` once per agent (or a small `.bat` that launches three `start` windows). This also runs three at once, but each is a cold external process with its own auth/working-dir, no structured hand-back, and you must collect each one's output yourself (have each write to a known file) and merge blind. Only reach for this if the user explicitly wants three independent terminals to watch; otherwise the native sub-agents above are strictly better (structured results, model pinning, `SendMessage` follow-up, integrated verification).
 
 Tell the user the plan before/as you launch: the streams, the model on each, and the file territories — e.g.:
 
