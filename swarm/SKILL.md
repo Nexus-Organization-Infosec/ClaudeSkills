@@ -78,17 +78,23 @@ The hard constraint: **parallel agents must not edit the same files.** Two agent
 
 If the prompt does **not** split cleanly — one tightly-coupled change, or a tiny task — say so and just do it directly (or with one agent). A swarm on an indivisible task is pure overhead. Don't force three agents onto a one-file fix.
 
+**Do the orientation once, yourself, before you brief anyone.** As the controller you (or a cheap `Explore` scout) locate the relevant files, functions, and line ranges for each stream *now* — so you can hand each agent an exact map instead of making three agents each rediscover the project from scratch. One orientation pass by the controller is far cheaper than three cold agents exploring in parallel. This map feeds directly into the briefs in Step 2.
+
 ## Step 2: Write a self-contained brief for each agent
 
-Each sub-agent starts cold — it does **not** see this conversation. Its prompt must stand alone. For every agent include:
+Each sub-agent starts **cold** — it does not see this conversation and knows **nothing** about the project. This is the single biggest cost trap in a swarm: if you hand an agent a vague goal ("improve the router"), it will burn a huge share of the budget just exploring the tree to figure out what the project is, where the router lives, and how it's wired — rediscovering context **you already have**. Multiply that across three agents and the swarm can spend most of its credits on orientation before any real work happens.
 
-- **The goal** — exactly what to build/produce, in concrete terms.
-- **Its territory** — which files/dirs it owns and, explicitly, which it must NOT touch (the other agents' files).
-- **Context it needs** — relevant paths, the interface/contract it must match (function signatures, data shapes, API), conventions to follow. If stream B must call something stream A builds, define that seam *up front* in both briefs so they agree without talking.
-- **Definition of done + how to verify** — tests to write/run, the command that proves its piece works.
-- **Report format** — what to hand back (files changed, what was done, anything the lead must reconcile).
+**So YOU front-load the context. The controller already knows the project; the brief must transfer that knowledge so the agent goes straight to the work and doesn't explore.** Point each agent at *exactly* where to look and what to do. For every agent include:
 
-Fixing the shared interface in advance is what lets independent agents integrate cleanly — pin the seams before launch.
+- **The goal** — exactly what to build/change/test, in concrete terms. Not "improve X" but "in `bot/router.py`, the `route()` function (around line 80) does A; change it to B because C."
+- **The exact map — where to look.** Name the specific files, functions, and line ranges it will work in and read from. If a short snippet is the crux, **paste it into the brief** rather than making the agent go find and read it. List the handful of files it needs and tell it to **start there, not by scanning the repo**. Give it the one-paragraph "what this project is / how this part fits" that you already know — that paragraph can save it hundreds of exploratory tool calls.
+- **Its territory** — which files/dirs it owns and edits, and explicitly which it must NOT touch (the other agents' files).
+- **The seam/contract** — the interface it must match (function signatures, data shapes, API, return types) and conventions to follow. If stream B must call something stream A builds, define that seam *up front* in both briefs so they agree without talking.
+- **How to test / verify** — the exact command that proves its piece works (`python -m pytest tests/test_router.py`, the run command, the flow to exercise), and what "done" looks like. Tell it how to test *in place* so it doesn't invent its own harness.
+- **A budget guardrail** — tell it plainly: "Do not explore the wider codebase; everything you need is above. If you truly need a file that isn't listed, read that one file, don't sweep the repo." This caps the orientation burn.
+- **Report format** — what to hand back (files changed, what was done, test result, anything the lead must reconcile).
+
+Two things this buys you: agents spend budget on the *work*, not on *finding the work*; and fixing the shared interface in advance is what lets independent agents integrate cleanly. **Pin the seams and the map before launch.** A few extra sentences of precise context in the brief are far cheaper than the exploration they replace.
 
 ## Step 3: Launch them in parallel
 
