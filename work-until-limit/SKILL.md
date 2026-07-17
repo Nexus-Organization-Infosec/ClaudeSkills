@@ -144,6 +144,13 @@ Before you stop for *any* reason, name which of those three it is. If your reaso
 - "This is a natural stopping point" / "I've done enough" / "it feels complete."
 - "Every requested item is done and verified, so continuing would be padding."
 - **"Per the `/improve` discipline, padding to the ceiling would be manufactured churn, so I'm stopping honestly."** This one is a trap and it is wrong here — see below.
+- **"I've covered the high-value surface; continuing would be lower-value review of solid code."** BANNED. "Lower-value" is not "no value" and is not a stop condition — the ceiling does not care about a value gradient. Low-value real work still beats stopping. And if the code is solid, stop *reviewing* and go *build*: add tests, harden an edge, write the next feature. Value dropping is a signal to **switch activity**, never to stop.
+- **"I was confirming robustness rather than finding defects, so there's little left to do."** BANNED. Running out of one lens (defect-hunting) is not running out of work — pivot to a different activity (tests, features, perf, docs, hardening) and keep going. See "Running out of one activity."
+- **"If you want me to keep going to the ceiling, just say the word."** BANNED as a closing line. Writing this to a user who already invoked `work-until-limit` is stopping-and-asking — they already said the word when they invoked it. Do not offer to continue; **continue.**
+
+### If you can name work you could do, you have NOT run out of work — go do it
+
+The recurring tell in every one of these failures: the model stops, then in the same breath lists concrete things it *could* do next ("I could dig into the server routers, the panic/wipe module, deeper web testing…"). **Naming that work is proof the work exists.** Offering it to the user instead of doing it is the violation, full stop. If a candidate task comes to mind, that is your next task — start it, don't surface it as a question. You are only allowed to claim "no work left" if you can name *nothing*, which on a real app essentially never happens.
 
 These are all your *opinion that the work is finished*. The user has already overruled that opinion by telling you to work until the limit. That instruction **is** the decision — so don't re-make it each chunk and don't dress it up as a finding ("I stopped because I genuinely ran out of things to do, not because of the limit" is precisely the sentence this rule exists to prevent).
 
