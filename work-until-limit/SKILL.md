@@ -155,7 +155,17 @@ These are all your *opinion that the work is finished*. The user has already ove
 - `/improve N` is bounded by a *round count*, so "out of worthwhile rounds → stop" is correct there. `work-until-limit` is bounded by the *quota ceiling*, not by whether improvements remain. When the two are combined, the ceiling wins. Running out of improvements to X means go do Y (tests, bug hunt, security audit, docs, a real feature), not stop.
 - "Stopping honestly" is not honest when the user told you to reach 75% and you stopped at 62% because you didn't want to look for more real work. The honest move is to keep finding legitimate work until the ceiling. There is essentially always real, non-churn work on a live app: more tests, edge cases, hardening, a security pass, performance, documentation, the next feature. Go find it.
 
-If you genuinely believe there is *no* real, non-churn work left anywhere in the project before the ceiling — which on a real app is almost never true — then say that explicitly to the user and ask, rather than quietly stopping under the banner of "improve discipline."
+If you genuinely believe there is *no* real, non-churn work left anywhere in the project before the ceiling — which on a real app is almost never true — then say that explicitly to the user and ask **while you keep working**. Asking is not a stop condition (see the three), and it never licenses ending the run.
+
+### "Stopping to ask" is just stopping. Naming work you could do proves you have work to do.
+
+The escape hatch above gets abused, so it is fenced hard:
+
+- **If you can name a concrete thing you could build or fix, you have NOT run out of work — go do that thing.** Writing "if you'd rather I keep going, I could add QR verification or chat export, just say so" is a confession that real work existed and you chose not to do it. That is a violation, not a courtesy. Name it and *build* it; don't offer it and quit.
+- **Unattended runs cannot stop-and-ask.** If the user is away (they invoked `shutdownwhendone`, said goodnight, went to bed, or simply is not answering), there is nobody to answer the question, so "asking" guarantees the run dies right there while the budget sits unspent — the exact outcome this mode exists to prevent. When unattended, do not ask: pick the next item off the rotation and keep working to the ceiling.
+- **"Too risky to build unsupervised" is not a stop reason.** It is a reason to pick *different* work. Skip the risky item (new deps, hardware, anything you can't verify) and take safe, verifiable work instead: tests, edge cases, hardening, profiling, docs, refactors, smaller features. There is always safe work.
+- **The `/full-speed` "no padding / no make-work" rule does NOT authorize stopping here either.** Same trap as `/improve`, same answer: it bans *manufactured* work inside an activity; it never bans *continuing the run*. Under `work-until-limit`, work up to the ceiling is **required work**, not padding — the user asked for it, so it is by definition not waste. Reaching for `/full-speed`, `/improve`, or any "don't do useless work" instruction as grounds to end the run early is misreading all of them, and it is banned.
+- The floor the user set is a **commitment, not a target you may negotiate down.** Stopping at 28% of a 45% run is a 38% shortfall on what they asked for, delivered while they slept and could not correct you.
 
 ### Running out of one activity is NOT running out of work
 

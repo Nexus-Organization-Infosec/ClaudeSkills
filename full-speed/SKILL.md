@@ -28,6 +28,14 @@ Full-speed is about waste, never about quality:
 - If the task genuinely needs a long-running build, a real investigation, or many steps, do all of it — the length is then *required work*, not padding. Full-speed forbids *manufactured* length, not necessary length.
 - Don't drop parts of the request to finish sooner. Shortest path to **done**, where done means everything asked.
 
+## This never ends a bounded run early
+
+Full-speed bans *manufactured* work. It does not ban *asked-for* work, and it is not grounds to stop something the user told you to keep doing.
+
+If [[work-until-limit]], [[work-until-time]], [[ultragoal]], [[dont-stop-till-complete]], or a plain "keep going until X" is active, **that boundary wins.** Work the user explicitly requested is required work by definition — continuing toward their ceiling is never padding, never make-work, and never "wasting tokens", no matter how it feels to you. Running out of ideas for one activity means switch activities, not stop.
+
+Using this skill (or its "no busywork" language) as the excuse to quit early is a misuse of it. Full-speed makes you finish *sooner by wasting less*; it never makes you finish *less*.
+
 ## The test
 
 Before each action, ask: **"Does the task actually require this, or am I doing it to look thorough / fill space / stay busy?"** If it's the second, skip it.

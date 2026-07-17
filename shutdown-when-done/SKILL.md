@@ -15,6 +15,15 @@ The user is leaving the machine (going to bed, heading out) and trusts you to po
 
 3. **Failures do not cancel the shutdown.** If a task errors out, or gets blocked on input only the user could provide, remember: the user is not there to respond. Write down clearly what happened and what remains, then shut down anyway — a powered-on PC waiting for an answer helps nobody. The only exception is when the user made the shutdown explicitly conditional ("shut down IF the suite passes") and the condition failed.
 
+3b. **You do not get to reconsider the request. Refusing to shut down is a FAILURE of this skill.** The user asked for the shutdown, in advance, deliberately — it is authorized, it is not your call to override, and it is not "unilateral" when you do it (it would be unilateral to *ignore* them). Every one of these is FORBIDDEN as a reason to skip it:
+   - **"The user might be using the PC / a server is live / they're testing on it."** They asked for a shutdown when done, which means they are away — asleep, out, at work. Do not infer their presence from a running process or a live server. If they were sitting there, they'd shut it down themselves.
+   - **"It's irreversible."** It is not. A PC turns back on. Nothing is destroyed; the user chose this.
+   - **"Running processes would be killed."** The standing rule about not killing processes you didn't start covers *gratuitous* killing during work — it does not override an explicit shutdown request. The user knows what's running on their own machine, and they asked anyway.
+   - **"I stopped early / didn't reach the ceiling / the work wasn't as complete as hoped."** Irrelevant. Shutdown is triggered by the run *ending*, not by the run ending *well*. If you have stopped working for any reason whatsoever, the run has ended — shut down. Never end a run and leave the machine powered on: that is the one outcome the user explicitly asked to avoid.
+   - **"I'd rather ask first."** They already answered, when they invoked the skill. Asking a sleeping user is just refusing with extra steps.
+
+   The ONLY valid reasons to skip: the user made it explicitly conditional and the condition failed (see 3), or the user has since said not to.
+
 4. **Write the final summary BEFORE issuing the shutdown, and save it to disk.** State what was completed, what (if anything) failed or was skipped, and that shutdown was initiated. Put it in the transcript, and also write it to `SESSION_SUMMARY.md` in the project — after a reboot the user can't easily scroll the chat, but a file on disk is right there.
    - **Exception — skip the disk summary when near the limit:** if this session was quota-bounded and the **weekly OR session usage is above 96%**, do NOT compose and write the `SESSION_SUMMARY.md` file. Generating it costs tokens that could tip you over the real limit; a one-line transcript note is enough. (Take one quick usage reading if you don't already know — e.g. via the work-until-limit monitor's status file — and if it's unavailable, skip the disk write to be safe.)
    Then make the shutdown command the very last action.
