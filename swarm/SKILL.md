@@ -9,6 +9,8 @@ Run one prompt as a **parallel team** instead of a single sequential pass. You (
 
 There is no special "swarm" engine underneath — this is the **Agent tool with a `model` override**, launched in parallel, and **you (the model reading this) are the orchestrator**: you dispatch the agents, watch them, merge them, and can send any of them a new prompt while it runs.
 
+**The prompting model's training, parameters, and smartness (the control model — you) will normally decide the smartness of the 3 others.** The agents only ever act on the briefs you write and the follow-up prompts you send; a sharper decomposition, clearer seams, better-targeted effort, and tighter steering produce sharper agents, and a weak controller caps how good the whole swarm can be no matter which models the agents run. You are the ceiling on the result — invest in the briefs and the merge accordingly.
+
 ## ⚠️ Cost warning — a swarm burns your usage FAST
 
 A swarm runs **four models at once**: the three sub-agents **plus this orchestrating model**, which is itself an AI that spends tokens dispatching, monitoring, merging, and re-prompting. Four meters burning in parallel, not one.
