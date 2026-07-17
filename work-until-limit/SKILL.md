@@ -7,6 +7,13 @@ description: Work continuously until the account's usage quota reaches a set cei
 
 Keep doing useful work until the usage quota hits a ceiling the user sets, showing them where the meter is along the way, then stop gracefully — or shut the machine down if they asked for that too.
 
+## Two ways to run this: behavioral (this chat) vs ENFORCED (external loop)
+
+- **Behavioral mode (default):** the user invokes the skill in chat and *you* run the chunk-loop, honoring the ceiling and the "don't stop early" rules below. This is convenient but it is **self-enforced** — it depends on you not rationalizing an early stop, which is a known failure mode (see the long list of banned excuses).
+- **ENFORCED mode (hard guarantee):** for runs where stopping early is unacceptable, the user launches **`WORK_UNTIL_LIMIT_ENFORCED.bat`** (which runs `scripts/wul_enforce.ps1`). There, **an external PowerShell loop is the parent process and Claude is the child.** The script runs a turn (`claude -p`), reads the real usage meter itself, and if usage is below the ceiling it re-invokes Claude (`claude -c`) with a keep-going prompt — over and over — until the meter actually reaches the ceiling. **Stopping early is not reachable, because the model does not own the loop.** If a turn crashes, the loop relaunches it.
+
+  Answering the user's design question directly: *"what if Claude decides not to run it, or the program stops?"* — Claude **cannot** decline it, because Claude does not launch it; the **user** double-clicks the .bat and it launches Claude. The model has no vote. The only things that end an enforced run are the three legitimate conditions: the ceiling is hit, the meter is unreadable several times in a row, or the **operator** stops it (Ctrl+C, or a `.claude\wul_stop.flag` file — this is what the [[control]] STOP button can drop). The honest boundary: enforcement only covers runs started *through the wrapper*, and nothing can override the operator physically killing the window or sleeping the machine — the guarantee is specifically that *the model* can't end it early. Recommend ENFORCED mode to the user whenever they express frustration that a behavioral run stopped short.
+
 ## CRITICAL: this is active ONLY when the user just asked for it — it never carries over
 
 This mode applies **only to the single user message that explicitly invoked it.** It is NOT a standing mode that persists across messages. Get this wrong and you burn the user's quota against their will.
