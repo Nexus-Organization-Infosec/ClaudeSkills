@@ -1,6 +1,6 @@
 ---
 name: bug-hunt
-description: Proactively hunt the codebase for bugs of every size — major reliability bugs (connection/network failures, missing timeouts, unhandled disconnects, no retry/reconnect, crashes on the hot path, data corruption, money/precision errors), correctness/logic bugs and edge cases, and tiny issues (small security nits, defensive gaps) noticed in passing. Rank findings by severity, then fix them safely. Use whenever the user invokes /bug-hunt or asks to "hunt for bugs", "find bugs in my project", "what's broken or fragile here", or "look for connection issues and crashes". Think adversarially: what inputs and conditions break this?
+description: Proactively hunt the codebase for bugs of every size — major reliability bugs (connection/network failures, missing timeouts, unhandled disconnects, no retry/reconnect, crashes on the hot path, data corruption, money/precision errors), correctness/logic bugs and edge cases, and tiny issues (small security nits, defensive gaps) noticed in passing. Rank findings by severity, then fix them safely. Invoked as "bug-hunt" for one normal hunt, or "bug-hunt N" (e.g. "bug-hunt 10") for N successive hunt rounds, each sweeping a fresh area and fixing what it finds. Also combines with work-until-limit to hunt continuously until the usage ceiling. Use whenever the user invokes /bug-hunt or asks to "hunt for bugs", "find bugs in my project", "what's broken or fragile here", or "look for connection issues and crashes". Think adversarially: what inputs and conditions break this?
 ---
 
 # Bug Hunt
@@ -8,6 +8,18 @@ description: Proactively hunt the codebase for bugs of every size — major reli
 Go looking for bugs before they bite — the ones nobody's reported yet. Think like something trying to break the app: what input, what timing, what network hiccup makes it misbehave, crash, or silently produce the wrong result? Hunt across the whole range, from major reliability failures down to tiny defensive gaps, then fix what you find.
 
 This is *discovery* of unknown bugs (vs [[fix]], which fixes one known bug, and [[reverse-engineer]], which goes deep on security specifically). Cast a wide net; verify each catch; fix the real ones.
+
+## How it's invoked — one hunt, N rounds, or until the limit
+
+Read the invocation and pick the mode:
+
+- **`bug-hunt` (no number)** — do **one** normal hunt: Phases 1–5 once (find, verify, report, fix), then stop. This is the default and matches the plain behavior.
+- **`bug-hunt N`** (e.g. `bug-hunt 10`) — do **N successive hunt rounds**. Each round is a full Phase 1–5 pass (hunt → verify → report → fix), and each round targets a **fresh area or category** so you're not re-scanning the same code:
+  - Rotate the focus every round — e.g. round 1 network/IO, round 2 the hot path, round 3 state & persistence, round 4 money/precision, round 5 edges & concurrency, round 6 error-handling/silent-failure, then a module you haven't swept, then recent changes, etc. Move to a different high-risk zone or a different part of the tree each time.
+  - Number every round in the output: `Bug-hunt round 3/10 — state & persistence`. Give that round's ranked findings and the fixes applied, then go straight into the next round. Don't stop between rounds to ask permission (the count is the go-ahead).
+  - A round that finds nothing real still counts, but first widen the net (a different directory, a deeper trace) before accepting a clean round — an empty round usually means you looked at already-clean code, not that the project is bug-free. Never invent a bug or "fix" a non-bug just to make a round productive.
+  - After N rounds, stop and give a short roll-up: total confirmed bugs found and fixed across all rounds, by severity.
+- **Combined with [[work-until-limit]]** (e.g. `work-until-limit 80` + `bug-hunt`, or `bug-hunt work-until-limit 80`) — ignore any round count and hunt **continuously until the usage ceiling**, rotating focus areas the same way, round after round. Here bug-hunting is your *primary activity* for that run: when you exhaust bugs in one area, move to the next area (per work-until-limit's rules, running out of one activity is not running out of work — keep hunting other areas, add tests around fragile code, harden error paths). Do not stop at "no more bugs" — switch focus and keep going until work-until-limit's ceiling is what stops you. The ceiling wins over any sense that the hunt is "done".
 
 ## Scope: whole-project or recent-changes
 
@@ -79,5 +91,5 @@ Per finding: `file:line`, what's wrong, the concrete trigger (how it happens), a
 
 ## Notes
 
-- Pairs with **`/fix`** (thorough fix of a specific catch), **`/careful`**, **`/control`** (STOP button for a long hunt), **`/work-until-limit`**, and **`/map`**. Respects **`/no-talk`**.
+- Pairs with **`/fix`** (thorough fix of a specific catch), **`/careful`**, **`/control`** (STOP button for a long `bug-hunt N` or work-until-limit run), and **`/map`**. Respects **`/no-talk`** (skip the per-round narration, still print each round's findings). With **`/work-until-limit`** it becomes the run's primary activity and hunts to the ceiling (see "How it's invoked").
 - Complements **`/reverse-engineer`**: this hunts functional & reliability bugs broadly; that goes deep on security and CVEs. Its `references/patterns.md` is a useful grep source for the error-handling and tiny-security checks here too.
