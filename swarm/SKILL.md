@@ -1,6 +1,6 @@
 ---
 name: swarm
-description: Attack one prompt with a parallel team of sub-agents, each on the model that fits its job — Opus 4.8 for the core coding, Sonnet 5 for secondary coding, Haiku 4.5 for the light supporting work — all running at the same time, then merge their results. Effort per agent is settable, e.g. "swarm opus high sonnet5 low haiku4.5 low". This orchestrating model dispatches the agents concurrently (headless, no GUI), monitors them, and can feed each new prompts mid-run. Use whenever the user invokes /swarm or asks to "run a swarm", "parallelize this", "use multiple agents", "split this across models", or "throw a team at it". Best for tasks that break into independent parts; a single tightly-coupled change is better done directly.
+description: Attack one prompt with a parallel team of sub-agents, each on the model that fits its job — Opus 4.8 for the core coding, Sonnet 5 for secondary coding, Haiku 4.5 for the light supporting work — all running at the same time, then merge their results. Effort per agent is settable, e.g. "swarm opus high sonnet5 low haiku4.5 low"; if the user doesn't set effort, it auto-chooses a sensible level per task. This orchestrating model dispatches the agents concurrently (headless, no GUI), monitors them, and can feed each new prompts mid-run. Warns that running four models at once (three agents plus the controller) burns usage fast, especially with work-until-limit or high effort. Use whenever the user invokes /swarm or asks to "run a swarm", "parallelize this", "use multiple agents", "split this across models", or "throw a team at it". Best for tasks that break into independent parts; a single tightly-coupled change is better done directly.
 ---
 
 # Swarm
@@ -8,6 +8,15 @@ description: Attack one prompt with a parallel team of sub-agents, each on the m
 Run one prompt as a **parallel team** instead of a single sequential pass. You (the lead) decompose the request, dispatch several sub-agents at once — each pinned to the model that suits its part — let them work concurrently, then merge, reconcile, and verify. Faster wall-clock, and each piece runs on the right-sized model.
 
 There is no special "swarm" engine underneath — this is the **Agent tool with a `model` override**, launched in parallel, and **you (the model reading this) are the orchestrator**: you dispatch the agents, watch them, merge them, and can send any of them a new prompt while it runs.
+
+## ⚠️ Cost warning — a swarm burns your usage FAST
+
+A swarm runs **four models at once**: the three sub-agents **plus this orchestrating model**, which is itself an AI that spends tokens dispatching, monitoring, merging, and re-prompting. Four meters burning in parallel, not one.
+
+- **Tell the user this up front**, especially before a big or high-effort swarm: it will consume usage several times faster than a single agent doing the same work sequentially.
+- **Combined with [[work-until-limit]], it can hit the ceiling very quickly** — four parallel models, each on high/ultra, can chew through the remaining budget in a fraction of the time a solo run would. If the user pairs `swarm` with `work-until-limit` (or `shutdownwhendone`), **warn them explicitly** that a mostly-high-effort swarm could end the run (and, with `shutdownwhendone`, shut the PC down) far sooner than they expect, then let them confirm or dial the effort down.
+- **This is a direct reason to auto-choose modest effort** (below) rather than defaulting everything to high. Every agent on `ultra` is the fastest way to torch a limit. Use high/ultra only where the task genuinely needs it; keep the rest low/medium.
+- Fewer agents also means less burn — don't launch a fourth or fifth stream that has no real independent work to own.
 
 ## Invocation & per-agent effort
 
@@ -35,7 +44,17 @@ Effort is set by how you write that agent's brief — the extended-thinking keyw
 
 - **Not every model benefits from every tier.** Opus 4.8 supports the whole ladder up to **ultra** — that's the "ultracode" tier. Sonnet 5 tops out usefully around **high**. Haiku 4.5 is built for speed: keep it **low** (medium at most); asking Haiku for `ultra` mostly wastes time for little gain, so if the user requests it, honor it but note it's not Haiku's strength.
 - **Match effort to the job, not just the model.** The core/ambiguous stream on Opus deserves `high`/`ultra`; a mechanical test-writing stream on Haiku should be `low` even though it *could* go higher. High effort on trivial work is the same waste `/full-speed` warns about.
-- **Defaults when unspecified:** Opus → high, Sonnet → medium, Haiku → low.
+
+### Auto-choosing effort (when the user didn't set it)
+
+If the user gives no effort for a model (or runs bare `swarm`), **you choose each agent's effort from the nature of its task** — do not just slap "high" on everything (that torches the limit; see the cost warning). Pick the *lowest* effort that will do the job well:
+
+- **low** — mechanical, well-specified, or high-volume work: tests, boilerplate, scaffolding, docs, formatting, simple search/report, a change with an obvious single answer.
+- **medium** — real implementation from a clear spec, moderate logic, integration/wiring where the shape is known.
+- **high** — genuinely hard/ambiguous/high-risk work: tricky algorithms, architecture decisions, subtle correctness, anything where a wrong answer is expensive.
+- **ultra** — reserve for a *single* Opus stream that is the crux of the whole task and truly needs maximum reasoning. Never auto-assign ultra to more than one agent, and never to Sonnet/Haiku.
+
+Bias toward the cheaper tier when unsure — you can always send an agent a follow-up with `SendMessage` to go deeper, but you can't refund the tokens a needlessly-high run already spent. Then show the resolved effort per agent in the launch plan so the user can override before it costs anything.
 
 Echo the resolved plan back to the user (model + effort + territory per agent) before launching, so they can see what each got.
 
@@ -109,7 +128,23 @@ When the agents return, you are the integrator — this is where a swarm is won 
 - **Don't over-parallelize.** More agents = more merge/reconcile cost. Use the fewest streams that capture the genuine parallelism.
 - Keep the **load-bearing, ambiguous, high-risk** work on Opus; push **well-specified, mechanical, high-volume** work to Haiku; Sonnet takes the solid middle. Matching model to task is the point of the skill.
 
+## Compatibility with the other skills
+
+Swarm is an orchestration layer, so most skills compose with it. Apply an active mode to **both** the lead (you) and pass it down into each agent's brief, since agents start cold and won't inherit it otherwise:
+
+- **[[work-until-limit]] / [[work-until-time]]** — swarm becomes the *engine* of the run: keep launching parallel rounds of work toward the ceiling/clock. **Heed the cost warning above** — four models burn the budget fast, so warn the user and lean on auto-chosen modest effort. When a limit-bounded run stops, it stops the swarm too; don't spawn fresh agents past the ceiling.
+- **[[shutdownwhendone|shutdown-when-done]]** — the shutdown fires only after **all** agents have returned and you've merged + verified. Never power off with agents still running or results unmerged. (And the swarm's fast burn can bring the shutdown sooner — flag that.)
+- **[[control]]** — launch the STOP button when the swarm starts. On STOP, stop dispatching new agents and let in-flight ones finish (or `SendMessage` them to wrap up), then merge what's done — don't hard-kill mid-write.
+- **[[full-speed]]** — bias auto-effort *lower* and cut any stream that isn't genuinely independent work. Full-speed and the cost warning point the same way: no manufactured agents, no needless-high effort.
+- **[[careful]]** — prefer `isolation: "worktree"` so agents physically cannot touch each other's (or the working tree's) files; merge deliberately afterward.
+- **[[no-talk]]** — suppress the per-agent narration, but still print the launch plan (models + effort + territory) and the final merged roll-up; the user needs to see what four models are doing to their budget.
+- **[[map]]** — use it to plan the decomposition and file territories *before* launching; the map's task list becomes the per-agent briefs.
+- **[[dont-stop-till-complete]] / [[just-do-it]]** — carry the request all the way through integration and verification, no stopping at "agents launched"; launching is the start, the merged verified result is done.
+- **[[bug-hunt]] N / [[improve]] N / [[new-features]] N** — a swarm can parallelize the rounds across agents (partition by area/file), then you reconcile. Pass each agent the relevant discipline in its brief.
+- **[[no-internet]] / [[stay-here]]** — pass the restriction into every brief; a cold agent won't know it's offline or folder-locked unless you tell it, and one agent breaking the rule breaks it for the run.
+- **[[pause]]** — a swarm is exactly the kind of long, unattended, multi-minute work `/pause` says to defer; don't kick one off while away mode is active.
+
 ## Notes
 
 - Each spawned agent is a fresh context and a real cost — a swarm trades tokens for wall-clock speed and model-fit. Worth it for genuinely parallel work; wasteful for a small or coupled task (do those directly).
-- Pairs with **`/map`** (plan the decomposition first), **`/control`** (STOP button while the swarm runs), and **`/dont-stop-till-complete`** (see the integration all the way through). Respects **`/no-talk`**. Under **`/careful`**, prefer worktree isolation so agents can't touch each other's files.
+- Always echo the launch plan (each agent's model, effort, and file territory) **before** dispatching, so the user can veto or re-tune while it's still free.
