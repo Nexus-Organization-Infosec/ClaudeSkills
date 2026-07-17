@@ -158,6 +158,7 @@ Swarm is an orchestration layer, so most skills compose with it. Apply an active
 - **[[map]]** — use it to plan the decomposition and file territories *before* launching; the map's task list becomes the per-agent briefs.
 - **[[dont-stop-till-complete]] / [[just-do-it]]** — carry the request all the way through integration and verification, no stopping at "agents launched"; launching is the start, the merged verified result is done.
 - **[[bug-hunt]] N / [[improve]] N / [[new-features]] N** — a swarm can parallelize the rounds across agents (partition by area/file), then you reconcile. Pass each agent the relevant discipline in its brief.
+- **[[reverse-engineer]]** — the parallel **red-team** mode: each agent attacks a different surface of the user's *own* app (crux/trust-boundaries on Opus, code-level vuln classes on Sonnet, CVE + secrets + stability sweeps on Haiku), hunting CVEs and vulns like an attacker breaking in, then you merge findings into `SECURITY_AUDIT.md` and drive the fixes serially. The defensive/own-project ground rules go verbatim into every brief. See that skill's "Parallel red-team" section.
 - **[[no-internet]] / [[stay-here]]** — pass the restriction into every brief; a cold agent won't know it's offline or folder-locked unless you tell it, and one agent breaking the rule breaks it for the run.
 - **[[pause]]** — a swarm is exactly the kind of long, unattended, multi-minute work `/pause` says to defer; don't kick one off while away mode is active.
 

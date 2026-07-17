@@ -1,6 +1,6 @@
 ---
 name: reverse-engineer
-description: Audit the user's OWN project end-to-end for security vulnerabilities (known-CVE dependencies, injection, unsafe deserialization, command/code execution, path traversal, hardcoded secrets/API keys, weak crypto, TLS bypass, SSRF, XSS) and stability weaknesses (crash points, unhandled errors, missing timeouts, resource leaks, races), rank the findings by real-world severity, then fix them without breaking the app. Use whenever the user invokes /reverse-engineer or asks to "audit my project for security", "find CVEs / vulnerabilities", "harden the app", "protect me from hackers", "pentest my own code", or "make it stable and secure". This is defensive security on the user's own codebase — think like an attacker to find the holes, then patch them.
+description: Audit the user's OWN project end-to-end for security vulnerabilities (known-CVE dependencies, injection, unsafe deserialization, command/code execution, path traversal, hardcoded secrets/API keys, weak crypto, TLS bypass, SSRF, XSS) and stability weaknesses (crash points, unhandled errors, missing timeouts, resource leaks, races), rank the findings by real-world severity, then fix them without breaking the app. Use whenever the user invokes /reverse-engineer or asks to "audit my project for security", "find CVEs / vulnerabilities", "harden the app", "protect me from hackers", "pentest my own code", or "make it stable and secure". This is defensive security on the user's own codebase — think like an attacker to find the holes, then patch them. Runs as a parallel red-team when combined with swarm ("reverse-engineer swarm"): multiple agents each attack a different surface of the user's own app, hunt CVEs and vulns, and report back for the controller to merge and fix.
 ---
 
 # Reverse Engineer — Security Audit & Hardening
@@ -112,8 +112,26 @@ Fixing security issues can break functionality, so apply careful-refactor discip
 - Don't do the whole audit-and-fix as one giant unverified sweep — report first, then fix incrementally with tests between.
 - Don't claim the project is "secure now." Claim what you checked, what you fixed, and what remains.
 
+## Parallel red-team with [[swarm]]
+
+A security audit parallelizes well, because the attack surface splits into independent zones. When invoked as **`reverse-engineer swarm`** (or `swarm reverse-engineer`), run the audit as a **red-team of parallel agents**, each assigned a different surface and told to *think like an attacker trying to break into the user's own app* — then you (the controller) merge their findings and drive the fixes.
+
+Ground rules carry over unchanged and get **repeated verbatim in every agent brief**: this is the user's OWN project, defensive only, stay inside it, never build offensive tooling aimed at third parties, never send code to an online scanner, never put real secret values in a report. The "attacker mindset" is a lens for finding holes in their code, not a license to attack anything external.
+
+**How to split the red-team** (partition by surface so agents don't collide; each *owns* its report section, and code fixes stay serialized through you to avoid conflicting edits):
+
+- **Opus 4.8 (high/ultra)** → the crux surface for *this* app's domain — the trust boundaries and highest-impact assets. For a trading app: credential handling + order/withdrawal logic; a web app: auth + injection/XSS; an extension/bridge: message-sender validation + permissions. The subtle, expensive-if-wrong holes go here (Phase 1's top targets, deep data-flow traces from untrusted input to sink).
+- **Sonnet 5 (medium/high)** → a second real surface: code-level vuln classes (`references/patterns.md`) across the entry points Opus isn't taking — injection, unsafe deserialization, SSRF, path traversal, TLS bypass — with trigger traces.
+- **Haiku 4.5 (low)** → the mechanical, high-volume sweeps: the known-CVE dependency scan (`pip-audit`/`npm audit`/`osv-scanner`), the secrets grep (redacted `file:line` only), and a first pass of the stability review. Fast, well-scoped, pattern-driven.
+
+Each agent's brief must carry: its surface and the exact files/entry points to look at (you front-load the recon per [[swarm]] — the agents do **not** re-map the whole project), the relevant patterns to run, the "trace input→sink before reporting; drop what you can't trigger" filter, the redaction rule, and the report shape (feed findings back as `[SEVERITY] title — file:line + trigger + fix`, not a code dump).
+
+**You are the integrator and the fixer.** Collect all agents' findings, de-duplicate overlaps, rank the combined set by severity in one `SECURITY_AUDIT.md`, then apply fixes yourself (or hand serialized fix-tasks to agents one file at a time) — highest-impact first, tests between, per Phase 4/5. Never let two agents edit the same file in parallel, and never let an agent's "exploit" step do anything destructive to the live app. Verify each closed hole yourself before calling it fixed.
+
+Combined with **`/work-until-limit`**, the red-team keeps going: when the first parallel sweep is merged and fixed, launch the next wave at deeper or previously-deprioritized surfaces (and keep working solo between waves) until the ceiling — a security audit is never "done," there's always another layer to probe.
+
 ## Notes
 
-- Pairs well with **`/careful`** (minimal-touch fixing), **`/control`** (a STOP button for a long audit), **`/work-until-limit`**, and **`/map`** (plan the audit as tracked tasks). Respects **`/no-internet`** and **`/stay-here`**.
+- Pairs well with **`/careful`** (minimal-touch fixing), **`/control`** (a STOP button for a long audit), **`/work-until-limit`**, **`/swarm`** (parallel red-team, above), and **`/map`** (plan the audit as tracked tasks). Respects **`/no-internet`** and **`/stay-here`**.
 - For a quick review of just the pending diff, the built-in **`/security-review`** is the lighter tool — but it diffs against git (`origin/HEAD`), so it **errors on a project that isn't a git repo** and isn't meant for a from-scratch whole-project pass. `/reverse-engineer` is the full-project audit-and-fix and needs no git to run.
 - Detailed detection patterns: **`references/patterns.md`**.
