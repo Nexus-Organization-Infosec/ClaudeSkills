@@ -1,13 +1,43 @@
 ---
 name: swarm
-description: Attack one prompt with a parallel team of sub-agents, each on the model that fits its job — Opus 4.8 for the core coding, Sonnet 5 for secondary coding, Haiku 4.5 for the light supporting work — all running at the same time, then merge their results. Decomposes the prompt into independent work streams, dispatches the three agents concurrently with self-contained briefs, and integrates + verifies the combined output. Use whenever the user invokes /swarm or asks to "run a swarm", "parallelize this", "use multiple agents", "split this across models", or "throw a team at it". Best for tasks that break into independent parts; a single tightly-coupled change is better done directly.
+description: Attack one prompt with a parallel team of sub-agents, each on the model that fits its job — Opus 4.8 for the core coding, Sonnet 5 for secondary coding, Haiku 4.5 for the light supporting work — all running at the same time, then merge their results. Effort per agent is settable, e.g. "swarm opus high sonnet5 low haiku4.5 low". This orchestrating model dispatches the agents concurrently (headless, no GUI), monitors them, and can feed each new prompts mid-run. Use whenever the user invokes /swarm or asks to "run a swarm", "parallelize this", "use multiple agents", "split this across models", or "throw a team at it". Best for tasks that break into independent parts; a single tightly-coupled change is better done directly.
 ---
 
 # Swarm
 
 Run one prompt as a **parallel team** instead of a single sequential pass. You (the lead) decompose the request, dispatch several sub-agents at once — each pinned to the model that suits its part — let them work concurrently, then merge, reconcile, and verify. Faster wall-clock, and each piece runs on the right-sized model.
 
-There is no special "swarm" engine underneath — this is the **Agent tool with a `model` override**, launched in parallel. That's the whole trick, done deliberately.
+There is no special "swarm" engine underneath — this is the **Agent tool with a `model` override**, launched in parallel, and **you (the model reading this) are the orchestrator**: you dispatch the agents, watch them, merge them, and can send any of them a new prompt while it runs.
+
+## Invocation & per-agent effort
+
+Grammar: `swarm [<model> <effort>] [<model> <effort>] ...` — e.g.
+
+```
+swarm opus high sonnet5 low haiku4.5 low
+swarm opus ultra sonnet high            (two agents; Haiku sits out)
+swarm                                    (no args → auto: pick the roster and sensible effort per stream)
+```
+
+- Model tokens map loosely: `opus`/`opus4.8` → Opus 4.8, `sonnet`/`sonnet5` → Sonnet 5, `haiku`/`haiku4.5` → Haiku 4.5.
+- The word after a model is that agent's **effort**. If the user names only some models, launch only those. If no effort is given for a model, use its default (below). If no args at all, you choose the roster and effort from the prompt.
+
+### Effort ladder (what each level means and which models support it)
+
+Effort is set by how you write that agent's brief — the extended-thinking keyword you put in it plus how thorough you tell it to be. There is no numeric knob on the Agent tool; the brief *is* the knob.
+
+| Effort | Put in the brief | Behavior | Best on |
+|---|---|---|---|
+| **low** | (no thinking keyword) | Fast, direct, minimal deliberation. Mechanical/well-specified work. | Haiku 4.5, Sonnet 5 |
+| **medium** | `think` | Normal reasoning, some planning before acting. | Sonnet 5, Opus 4.8 |
+| **high** | `think hard` | Deep, careful reasoning; considers edge cases and alternatives. | Opus 4.8, Sonnet 5 |
+| **ultra** (a.k.a. `max` / "ultracode") | `ultrathink` | Maximum reasoning budget; deepest analysis, slowest. | **Opus 4.8 only** |
+
+- **Not every model benefits from every tier.** Opus 4.8 supports the whole ladder up to **ultra** — that's the "ultracode" tier. Sonnet 5 tops out usefully around **high**. Haiku 4.5 is built for speed: keep it **low** (medium at most); asking Haiku for `ultra` mostly wastes time for little gain, so if the user requests it, honor it but note it's not Haiku's strength.
+- **Match effort to the job, not just the model.** The core/ambiguous stream on Opus deserves `high`/`ultra`; a mechanical test-writing stream on Haiku should be `low` even though it *could* go higher. High effort on trivial work is the same waste `/full-speed` warns about.
+- **Defaults when unspecified:** Opus → high, Sonnet → medium, Haiku → low.
+
+Echo the resolved plan back to the user (model + effort + territory per agent) before launching, so they can see what each got.
 
 ## The roster (who gets which model)
 
@@ -41,9 +71,16 @@ Fixing the shared interface in advance is what lets independent agents integrate
 
 ## Step 3: Launch them in parallel
 
-**The default and preferred way — native background sub-agents (they truly run at the same time).** Dispatch all the agents **in a single message** (multiple `Agent` tool calls in one turn, each `run_in_background`). The harness runs them **concurrently** — the three models work simultaneously, not one after another — and notifies you as each finishes. This is real parallelism; you do NOT need `cmd`, headless `claude -p`, or any external batching to get it. Note each agent's id/name so you can follow up via `SendMessage` (same context) if a brief needs a tweak, rather than re-spawning cold.
+**The default and required way — native background sub-agents, all launched together.** This is what guarantees the three agents work **at the same time, headless, under your control**:
 
-Set the model per call: `model: "opus"` for the core stream, `"sonnet"` for secondary, `"haiku"` for the light work. That's what makes it a multi-model swarm rather than three copies of the same model.
+1. **Launch them in ONE message.** Put all the `Agent` calls in a single turn, each with `run_in_background: true`. Launched together in one turn, they execute **concurrently** — the three models work simultaneously, not one waiting for the next. Launching them in separate turns would serialize them; do not do that. One turn, all agents.
+2. **Headless by design.** Background sub-agents have **no GUI and open no windows** — they run silently under this session. That is exactly the "headless" the user wants; you don't need `cmd` or `claude -p` to be headless. (A separate *visible-terminal* mode exists as a fallback below, but it is not required and is weaker.)
+3. **You stay in control and can re-prompt them.** You (this orchestrating model) are the controller: you get notified as each agent finishes, and you can send **new prompts to a still-running or finished agent with `SendMessage`** (addressed by its id/name), keeping its context — steer it, correct its course, or hand it the next task without re-spawning cold. Record each agent's id/name at launch so you can reach it. This satisfies "the model I'm running controls them and gives them new prompts": that is precisely `SendMessage` to the live agents.
+4. **Set the model AND effort per call.** `model: "opus" | "sonnet" | "haiku"`, and bake the resolved effort into that agent's `prompt` (the `think`/`think hard`/`ultrathink` keyword + thoroughness, per the effort ladder). Model + effort together are what make this a real multi-model, multi-effort swarm rather than three identical agents.
+
+**Do not fake concurrency.** If you ever find yourself running one agent, waiting, then the next, that is not a swarm — it defeats the entire point. All agents go out in the same turn.
+
+**Optional fallback — visible headless OS processes.** Only if the user explicitly wants separate terminal windows to watch live: spawn `claude -p "<self-contained brief>" &` per agent (or a `.bat` firing three `start` windows). Downsides: each is a cold one-shot process — you can't cleanly send it new prompts mid-run (no `SendMessage` channel), it has its own auth/cwd, and you must collect each one's output from a file and merge blind. Because the user wants *this model to control and re-prompt the agents*, the native sub-agents above are the correct choice; this fallback trades that control away for visible windows.
 
 **Alternative — headless OS processes (only if the user wants separate visible terminals).** You can instead spawn real background processes with the Bash tool: `claude -p "<self-contained brief>" &` once per agent (or a small `.bat` that launches three `start` windows). This also runs three at once, but each is a cold external process with its own auth/working-dir, no structured hand-back, and you must collect each one's output yourself (have each write to a known file) and merge blind. Only reach for this if the user explicitly wants three independent terminals to watch; otherwise the native sub-agents above are strictly better (structured results, model pinning, `SendMessage` follow-up, integrated verification).
 
