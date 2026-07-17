@@ -33,6 +33,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **ultragoal**: Hit the goal, then push past it with up to ten measured improvement rounds.
 - **improve-performance**: Make it faster. Profiles first to find the real bottleneck, fixes the biggest one, then proves the gain with before and after numbers.
 - **new-features**: Build new features into the project. Say `new-features 10` for ten. Each one is real and working, never a stub.
+- **improvement-ideas**: Get a ranked menu of ideas for your project. Improvements, fixes worth doing, fresh features, and opportunities you may not have thought of. It only suggests, it does not build, and it ends by asking which ones to do.
 
 ### Fixing and hunting
 - **fix**: Fix a bug, error, or warning the right way. Reproduce it, find the real cause, verify it. Also clears compiler and linter warnings across the project.
@@ -70,6 +71,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **dont-use-skills-rn**: Turn the skills layer off. No skill runs on its own until you type a slash command again.
 - **just-do-it**: Execute what you asked without the pushback. No opinions on the idea, no complaints about effort, no nagging you to test it.
 - **dont-stop-till-complete**: Do everything the prompt asked, all the way to done, without stopping partway to ask permission for big-but-safe changes. Pairs with just-do-it.
+- **full-speed**: Cut the waste. No padding, no stalling, no needless re-checking, no dragging a quick job across many turns. Shortest correct path to done, without ever cutting the actual work or correctness.
 
 ## Notes
 
