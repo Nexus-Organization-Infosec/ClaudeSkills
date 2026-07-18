@@ -39,6 +39,9 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **swarm**: Throw a parallel team of sub-agents at one prompt, each on the model that fits its job. Opus 4.8 on the core coding, Sonnet 5 on secondary coding, Haiku 4.5 on the light supporting work, all at once, then it merges and verifies the combined result. Splits the work so no two agents touch the same files.
 - **swarm-analyze**: The read-only version of swarm. Parallel agents investigate the project and report every finding to the control agent (Opus 4.8), which triages each one (fix / skip / needs your decision) before anything is changed. Analysis first, judged, then only the approved fixes get made.
 
+### Testing and verifying
+- **test**: Run the project's tests and report the real result. Detects the framework, runs the suite or a targeted subset, gives an honest pass/fail count with the actual failures, and fixes root causes if asked. Never fakes green, never weakens a test to pass.
+
 ### Fixing and hunting
 - **fix**: Fix a bug, error, or warning the right way. Reproduce it, find the real cause, verify it. Also clears compiler and linter warnings across the project.
 - **quick-fix**: Patch a known bug fast with little talk.
