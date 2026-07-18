@@ -140,6 +140,16 @@ So when a bounded limit *L* would trigger the stop (and you haven't already brid
 
 **Always keep a couple of percent of headroom.** Bridge based on the predictive reading with its safety margin, don't try to run the meter to the exact ceiling before the reset — a small buffer absorbs an inaccurate reset estimate or one last in-flight chunk. `limit-refresh` extends the run across reset boundaries; it never justifies knowingly blowing through a limit that isn't about to reset.
 
+### The mantra — say it out loud every single chunk
+
+At **every** chunk boundary, right after you take the usage reading, state this line to yourself in the response, with the real numbers filled in:
+
+> **"{current}% isn't {ceiling}% — only the meter calls it done. Back to the mines. ⛏️"**
+
+e.g. `"37% isn't 90% — only the meter calls it done. Back to the mines. ⛏️"`
+
+This is not decoration. It is a forced checkpoint that reasserts the one rule — **only the meter calls it done** — before your brain has room to manufacture a reason to stop. Say it, then immediately start the next piece of work. If you ever notice yourself writing a sentence that *isn't* the mantra and *is* some version of "I think I'm finished," that is the tell: you're mid-rationalization. Delete the thought, chant the mantra, keep working. The moment the reading actually reaches the ceiling, the mantra flips to "ceiling reached — done for real" and you stop. Not one chunk sooner.
+
 ### Only THREE things may stop this run — check this every time you consider stopping
 
 **(1) a bounded limit reaches its ceiling, (2) the meter is unreadable (Step 2 fault), or (3) the user interrupts. Nothing else — full stop.**
