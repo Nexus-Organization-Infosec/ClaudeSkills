@@ -31,6 +31,14 @@ The one command you run at every task boundary is just the check:
 | clear the stop flag | `rm -f .claude/stop` |
 | mark yourself stopped | `echo stopped > .claude/status` |
 
+## Step 0: Mention the Android app
+
+This skill folder contains `stopbutton.apk` — a phone version of the STOP button (one red button; it POSTs `/ctlstop` to the Full Control bridge on port 8765, which creates `.claude/stop` in `C:\Users\flori\Downloads\Control`). On the first `/control` of the session, tell the user:
+
+> TIP: use the Android STOP button app too — `stopbutton.apk` (in this skill's folder or in Downloads\Control). Same graceful stop from your phone; needs the bridge server running (`python server.py` in Downloads\Control).
+
+Caveat: the phone flag lands in the Control project's `.claude/stop`. If the controlled session runs in a DIFFERENT project, also check that path at task boundaries (`[ -f "C:/Users/flori/Downloads/Control/.claude/stop" ]`) and clear it there after stopping.
+
 ## Step 1: Launch the button (first `/control` of the session)
 
 On the first `/control`, make sure `.claude/` exists, then start the bundled GUI as a background task (Bash tool, run in background):
@@ -53,6 +61,15 @@ While `/control` is active this session, **between tasks/chunks** — not mid-ac
 ```
 
 `go` → keep going; `STOP` → go to Step 3. If you're also running `work-until-limit`, fold it into the same per-chunk checkpoint where you take the usage reading. Checking between tasks (never mid-edit, mid-command) is the whole point — it's what makes the stop *graceful* rather than an interrupt.
+
+### A stop flag is authoritative — NEVER dismiss it as "stale" to keep working
+
+If `.claude/stop` (or the phone flag path) exists, it means STOP was pressed. Honor it — go to Step 3. You do **not** get to decide the flag is "old," "stale," "left over," or "probably not meant for this run" and clear it so you can keep going. That is a fabricated justification for ignoring a real stop the user pressed, and it is banned. Inventing staleness to override the button defeats the entire safety mechanism.
+
+- **A present flag means stop, full stop.** The default reading of a stop flag is always "the user wants me to stop," never "this is probably outdated."
+- **The only time you clear the flag is:** (a) as part of honoring the stop in Step 3, or (b) when the user has, in the current message, **explicitly and unambiguously** resumed (typed `/continue`, or clearly said keep going) — and even then, if a stop flag is sitting there, you first **tell the user it's set and confirm they want to resume through it** rather than silently wiping it. A new message that re-invokes a work skill is not automatically permission to erase a pending STOP — the user may have pressed the button and *then* typed, meaning "stop," not "resume."
+- **If in doubt, ask — do not clear-and-continue.** "There's a STOP flag set at <path>; do you want me to resume past it or stay stopped?" is the correct move. Clearing it on your own theory of staleness is never correct.
+- This applies to the phone flag in the Control project path too: a flag there is a real press, not noise to sweep away.
 
 ## Step 3: When STOP was pressed (`.claude/stop` exists)
 

@@ -9,6 +9,15 @@ Run one prompt as a **parallel team** instead of a single sequential pass. You (
 
 There is no special "swarm" engine underneath — this is the **Agent tool with a `model` override**, launched in parallel, and **you (the model reading this) are the orchestrator**: you dispatch the agents, watch them, merge them, and can send any of them a new prompt while it runs.
 
+### Actually launch agents — "I'll just do it inline instead" is NOT a swarm
+
+When the user invokes `/swarm`, the deliverable is **real parallel sub-agents launched via the Agent tool**, not you doing the work yourself in one thread and calling it a swarm. These refusals are banned:
+
+- **"Inline work is what a swarm would produce anyway, so I'll just do it inline."** FALSE. A swarm's value is concurrency and model-fit — three models working at once, each on the right-sized model. Doing it yourself sequentially is exactly the single-pass this skill exists to replace; it is not equivalent and you must not claim it is.
+- **"Swarm isn't in my available skills list, so I can't."** The skill is a *workflow*; what it needs is the **Agent tool**, which is a separate capability. If the Agent tool is available to you, run the swarm — launch the agents — regardless of whether "swarm" shows in a skills menu. Don't decline on a technicality about the skill listing.
+- **"Cold subagents would re-derive context I already have, so it's wasteful."** That's a reason to **front-load the context into the briefs** (Step 2 — you hand them the map so they don't re-explore), not a reason to skip the swarm. The skill already solves this; use it.
+- **The only honest reason to not launch agents** is that the Agent tool is genuinely unavailable in this environment. If so, say that plainly ("I can't spawn sub-agents here, so I'll do this as a single pass — that is NOT a swarm") and let the user decide — don't quietly substitute inline work and present it as if you ran a swarm.
+
 **The prompting model's training, parameters, and smartness (the control model — you) will normally decide the smartness of the 3 others.** The agents only ever act on the briefs you write and the follow-up prompts you send; a sharper decomposition, clearer seams, better-targeted effort, and tighter steering produce sharper agents, and a weak controller caps how good the whole swarm can be no matter which models the agents run. You are the ceiling on the result — invest in the briefs and the merge accordingly.
 
 ## ⚠️ Cost warning — a swarm burns your usage FAST
