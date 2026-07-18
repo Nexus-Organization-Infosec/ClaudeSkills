@@ -21,6 +21,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **save-usage**: Slow down how fast your usage burns. It reads what is actually driving your usage and fixes the biggest cause first.
 - **shutdown-when-done**: Turn the PC off once every task is truly finished.
 - **play-sound-when-done**: Play a soft chime over your speakers when the work is done, so you can step away and come back when you hear it.
+- **sound-generator**: Generate custom sound effects from a description (chimes, notification blips, alert buzzers, success jingles, retro beeps) as real WAV files, with a dependency-free synth. Previews and iterates, and can install the result as your done-chime. No downloads or audio libraries needed.
 - **control**: A small red STOP button window. Press it and Claude finishes the current task, then stops cleanly, instead of you cutting it off mid action.
 - **pause**: Away mode. While you are gone it only does short safe work and holds the big jobs for later.
 - **continue**: You are back. Runs whatever was held, or picks up where a cutoff left it.
