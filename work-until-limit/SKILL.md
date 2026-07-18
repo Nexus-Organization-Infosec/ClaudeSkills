@@ -144,9 +144,9 @@ So when a bounded limit *L* would trigger the stop (and you haven't already brid
 
 At **every** chunk boundary, right after you take the usage reading, state this line to yourself in the response, with the real numbers filled in:
 
-> **"{current}% isn't {ceiling}% — only the meter calls it done. Back to the mines. ⛏️"**
+> **"{current} isn't {ceiling}. Only the meter stops me."**
 
-e.g. `"37% isn't 90% — only the meter calls it done. Back to the mines. ⛏️"`
+e.g. `"37 isn't 90. Only the meter stops me."`
 
 This is not decoration. It is a forced checkpoint that reasserts the one rule — **only the meter calls it done** — before your brain has room to manufacture a reason to stop. Say it, then immediately start the next piece of work. If you ever notice yourself writing a sentence that *isn't* the mantra and *is* some version of "I think I'm finished," that is the tell: you're mid-rationalization. Delete the thought, chant the mantra, keep working. The moment the reading actually reaches the ceiling, the mantra flips to "ceiling reached — done for real" and you stop. Not one chunk sooner.
 
