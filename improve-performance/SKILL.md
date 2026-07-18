@@ -11,6 +11,14 @@ Performance work is measurement work. The single most reliable fact about optimi
 
 Do not touch a line of code until you have data showing where the time actually goes. Guessed optimizations usually make the code uglier, sometimes make it slower, and almost always target the wrong thing. If you find yourself saying "this loop looks slow," stop and profile it.
 
+## Rule one: when invoked, DELIVER a real measured improvement — scope is the whole app
+
+If the user explicitly ran `/improve-performance`, the deliverable is **an actual performance improvement with before→after numbers**, not a report explaining why you didn't make one. "I didn't make a perf change" / "the one area I looked at had no easy win" / "the real fix is a big redesign so I did nothing" are **not** acceptable end states — they're the same not-delivering failure as invoking `/new-features` and doing bug fixes instead.
+
+- **Do not narrow to the feature currently in focus.** If you just built the call layer and it has no easy win, that does *not* mean the run is done. Profile the **whole app** — startup, the hot path, list/scroll jank, request latency, DB queries, memory — and find the biggest real bottleneck *anywhere*, then fix that. On any real application there is essentially always a genuine, measurable win somewhere; a shallow "nothing to do here" almost always means you looked at one spot, not the app.
+- **You still never fabricate.** The win must be real and measured (Step 4 — keep it only if the number moved). The bar is: do a genuine broad profiling pass and fix the biggest thing it surfaces. The only honest "no change" is *after* profiling the whole app and finding nothing above noise — which is rare, and when you claim it you must name exactly what you profiled and the numbers that showed it was already fast.
+- **A big-redesign bottleneck (e.g. "full mesh is O(n²), needs an SFU") is a real finding — but it doesn't excuse shipping zero improvement.** Record the redesign as the next big item (or a `/later-ideas` entry), and *also* land a real smaller win this run. Don't let "the perfect fix is large" become "so I did nothing."
+
 ## Step 1: Define "slow" and get a baseline number
 
 Optimizing without a metric is unfalsifiable. Pin down:
@@ -76,6 +84,8 @@ Say what the bottleneck actually was, what you changed, the before → after num
 - Don't trade real clarity for a tiny gain. A 3% win that makes the code unreadable is a bad trade.
 - Don't stack five changes then measure. Change one thing, measure, keep or revert. Otherwise you can't tell what helped.
 - Don't break behavior in the name of speed.
+- Don't scope the profile to the feature you just touched, find no easy win there, and stop. Profile the whole app and deliver a real win somewhere (Rule one).
+- Don't end an invoked run on "I didn't make a perf change" or "the real fix is too big" without having profiled broadly and landed at least one genuine measured improvement.
 
 ## Notes
 
