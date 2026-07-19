@@ -19,6 +19,8 @@ Unlike the mutually-exclusive skill pairs, `/ultragoal` is *designed* to combine
 
 Do not begin improvement rounds until the requirement is verified met.
 
+**A large requirement is worked in continuous installments, never one-batch-then-handback.** If Phase 1 is a big multi-item program (e.g. "implement these 80 things"), break it into tested batches — good — but then execute batch after batch **without stopping between them**. "This is far more than one turn can complete well, so I did batch A and it's structured so `/continue` resumes here" is an early hand-back wearing a planning costume, and it does not count as reaching the requirement. The requirement is met only when **all** of it is built and verified. Waiting on a test suite mid-run is fine; the moment it's green, start the next batch — don't end your turn to wait for `/continue`. Turn length is the harness's concern, not a stop condition. (If `/dont-stop-till-complete` is also active, this is doubly binding — see that skill.)
+
 ## Phase 2: Up to 10 improvement rounds
 
 Now make it better — as much as 10 focused rounds of improvement. This is where ultragoal earns its name. Each round:
