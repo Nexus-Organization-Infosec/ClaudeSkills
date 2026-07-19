@@ -1,11 +1,19 @@
 ---
 name: improvement-ideas
-description: Give the user a curated list of IDEAS for the project — things to improve, bugs or weaknesses worth fixing, features that could be freshly implemented, and opportunities they may not have considered. This skill only PROPOSES; it does not build anything. Study the actual project first, then hand back a ranked, concrete idea list (what, why it helps, rough effort). Use whenever the user invokes /improvement-ideas or asks "what could I improve", "give me ideas", "what should I add next", "what's worth fixing", "how could this be better", or "what would you build into this". Ends by asking which ideas (if any) to actually do. Pairs with [[improve]], [[new-features]], [[fix]], and [[later-ideas]] for acting on the picks.
+description: Give the user a curated list of IDEAS for the project — things to improve, bugs or weaknesses worth fixing, features that could be freshly implemented, and opportunities they may not have considered. This skill only PROPOSES; it does not build anything. Study the actual project first, then hand back a ranked, concrete idea list (what, why it helps, rough effort). Invoked as "improvement-ideas" for a default handful, or "improvement-ideas N" (e.g. "improvement-ideas 10", "improvement-ideas 100") to get exactly N ideas — the number decides the count. Use whenever the user invokes /improvement-ideas or asks "what could I improve", "give me ideas", "what should I add next", "what's worth fixing", "how could this be better", or "what would you build into this". Ends by asking which ideas (if any) to actually do. Pairs with [[improve]], [[new-features]], [[fix]], and [[later-ideas]] for acting on the picks.
 ---
 
 # improvement-ideas
 
 Hand the user a concrete, ranked menu of ideas for THEIR project. This is a proposal skill — you investigate and suggest, you do **not** implement. Nothing gets built until the user picks.
+
+## How many ideas — the number decides
+
+Parse the count from the invocation:
+- **`improvement-ideas`** (no number) → a default handful (aim ~6–12 solid ideas).
+- **`improvement-ideas N`** → **exactly N ideas** (e.g. `improvement-ideas 10` → 10, `improvement-ideas 100` → 100). The number is the target; deliver that many.
+
+When N is set, hit the count — but never pad with junk to reach it. If N is large (say 100), that's fine: go wide and deep — cover every category below, every module/file, small nits and big directions alike, edge cases, tests, docs, perf, security, UX, refactors, config, tooling. A real project has a huge surface, so a long list is genuinely fillable with *distinct, concrete* ideas. Each still must be a real, specific idea tied to the actual code (see Step 1) — 100 grounded ideas, not 30 real ones plus 70 vague restatements. If you genuinely exhaust distinct grounded ideas before N (rare on a real project), say so honestly and give what you have rather than inventing filler.
 
 ## Step 1: Actually look at the project
 
@@ -33,7 +41,7 @@ Cover these categories (skip one only if it genuinely has nothing):
   - **What** — the concrete change, tied to a real file/area where possible.
   - **Why** — the benefit, or what it fixes/unlocks. If it's a bug, when it bites.
   - **Effort** — a rough size (small / medium / large).
-- Keep each idea tight — a couple of lines, not an essay. Aim for roughly 6–12 solid ideas, not a padded wall. Quality and specificity over quantity; a few sharp ideas beat twenty vague ones.
+- Keep each idea tight — a couple of lines, not an essay. Deliver the requested count (see "How many ideas"); with no count given, aim for roughly 6–12. Quality and specificity always — a padded wall of vague ideas is worse than fewer sharp ones, so even when hitting a large N, every entry must be distinct and grounded.
 - Group by the four kinds, or interleave by rank — whichever reads clearer for this project.
 
 ## Step 4: Hand off
