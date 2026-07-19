@@ -76,6 +76,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **no-internet**: Offline mode. Local files only, no network calls.
 - **no-talk**: Silent mode. Just do the work and print the results at the end, no chatter.
 - **dont-use-skills-rn**: Turn the skills layer off. No skill runs on its own until you type a slash command again.
+- **read-skills-again**: Force a fresh re-read of the actual SKILL.md files from disk, even when the model thinks it already knows them. The skills change often, so it reads the current text instead of a stale mental copy, then applies it.
 - **decide**: Let the model pick which skills to use for the task on its own, always at least one. It reads the request, chooses the best-fitting skill(s), says which and why, then does the work under them.
 - **just-do-it**: Execute what you asked without the pushback. No opinions on the idea, no complaints about effort, no nagging you to test it.
 - **dont-stop-till-complete**: Do everything the prompt asked, all the way to done, without stopping partway to ask permission for big-but-safe changes. Pairs with just-do-it.
