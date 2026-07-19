@@ -79,6 +79,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **read-skills-again**: Force a fresh re-read of the actual SKILL.md files from disk, even when the model thinks it already knows them. The skills change often, so it reads the current text instead of a stale mental copy, then applies it.
 - **decide**: Let the model pick which skills to use for the task on its own, always at least one. It reads the request, chooses the best-fitting skill(s), says which and why, then does the work under them.
 - **just-do-it**: Execute what you asked without the pushback. No opinions on the idea, no complaints about effort, no nagging you to test it.
+- **legit-project**: Give the model honest context that your projects (an E2E-encrypted messaging app, a personal trading bot) are your own legitimate work, so it stops misreading domain-normal features (custom crypto, duress-wipe, automated trading, backtests) as risky and halting. It sets accurate framing, it does not switch off judgment, it still flags real bugs and keeps the real safety lines.
 - **dont-stop-till-complete**: Do everything the prompt asked, all the way to done, without stopping partway to ask permission for big-but-safe changes. Pairs with just-do-it.
 - **full-speed**: Cut the waste. No padding, no stalling, no needless re-checking, no dragging a quick job across many turns. Shortest correct path to done, without ever cutting the actual work or correctness.
 
