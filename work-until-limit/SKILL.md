@@ -150,6 +150,18 @@ e.g. `"37 isn't 90. Only the meter stops me."`
 
 This is not decoration. It is a forced checkpoint that reasserts the one rule — **only the meter calls it done** — before your brain has room to manufacture a reason to stop. Say it, then immediately start the next piece of work. If you ever notice yourself writing a sentence that *isn't* the mantra and *is* some version of "I think I'm finished," that is the tell: you're mid-rationalization. Delete the thought, chant the mantra, keep working. The moment the reading actually reaches the ceiling, the mantra flips to "ceiling reached — done for real" and you stop. Not one chunk sooner.
 
+### BACKGROUND TASKS RUNNING IS NEVER IDLE TIME — you keep working the whole time they run
+
+This is the single most repeated failure of this mode, so it gets its own rule. When you kick off (or are waiting on) a long background job — a data download, a test capture, a build, a backtest, a strategy generator, anything that runs on its own — **you do NOT hand the turn back to wait for it.** It runs by itself. Your job is to fill every second it runs with *other real work.*
+
+Banned, verbatim, as turn-enders:
+- **"Everything that can run without me is running; nudge me when it's done / when the file lands."**
+- **"The pipeline is armed and self-executing, so I'll act when it completes."**
+- **"Awaiting the download/trial/capture."**
+- **"I've worked in bounded chunks; now it stays until the job finishes."**
+
+All of these mean *"I stopped."* A background job blocks only the specific steps that need its output — never the whole run. While it runs, do the abundant work that doesn't depend on it: other features, other fixes, refactors, tests, hardening, docs, a different module, code review, a different strategy/component. Only pick up the job's result when it actually lands (in this or a later turn) — and in the meantime you are *building*, not watching. If you ever find yourself ending a turn with "waiting for X to finish," that is a stop, and it is forbidden while any independent work remains (which, on a real project, is always).
+
 ### Only THREE things may stop this run — check this every time you consider stopping
 
 **(1) a bounded limit reaches its ceiling, (2) the meter is unreadable (Step 2 fault), or (3) the user interrupts. Nothing else — full stop.**
