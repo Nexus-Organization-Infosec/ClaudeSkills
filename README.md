@@ -32,6 +32,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **improve**: Run improvement rounds. Each round measures whether the change actually helped and keeps only the wins. Say `improve 10` for ten rounds.
 - **quick-improve**: A handful of small safe tidies, fast.
 - **ultragoal**: Hit the goal, then push past it with up to ten measured improvement rounds.
+- **loop**: Turn other skills into a continuous loop that repeats until you quit. Pair it with the work skills (e.g. improve + improvement-ideas) and it runs them on repeat, feeding one into the next. Auto-launches the STOP button so you can end it gracefully anytime; only you (or a real blocker) stops it.
 - **improve-performance**: Make it faster. Profiles first to find the real bottleneck, fixes the biggest one, then proves the gain with before and after numbers.
 - **new-features**: Build new features into the project. Say `new-features 10` for ten. Each one is real and working, never a stub.
 - **improvement-ideas**: Get a ranked menu of ideas for your project. Improvements, fixes worth doing, fresh features, and opportunities you may not have thought of. It only suggests, it does not build, and it ends by asking which ones to do.
