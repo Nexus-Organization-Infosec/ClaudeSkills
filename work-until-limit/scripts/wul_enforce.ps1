@@ -120,12 +120,24 @@ if (-not $u.Ok) {
     $u = Get-Usage -TimeoutSec $UsageTimeoutSec
 }
 if (-not $u.Ok) {
+    # Definitively check whether it's an auth problem (the usual cause).
+    $loggedOut = $false
+    try {
+        $authRaw = (claude auth status 2>&1 | Out-String)
+        if ($authRaw -match '"loggedIn"\s*:\s*false' -or $authRaw -match '"authMethod"\s*:\s*"none"') { $loggedOut = $true }
+    } catch {}
     Log '======================================================================'
-    Log '  METER UNREADABLE - the Claude CLI is most likely NOT LOGGED IN.'
+    if ($loggedOut) {
+        Log '  NOT LOGGED IN - `claude auth status` reports loggedIn:false.'
+        Log '  That is why the meter is unreadable.'
+    } else {
+        Log '  METER UNREADABLE - the Claude CLI is most likely NOT LOGGED IN.'
+    }
     Log '  claude -p "/usage" is returning a cost stub with no percent lines.'
     Log ''
     Log '  FIX: authenticate, then relaunch this window:'
-    Log '      claude setup-token          (opens your browser to log in)'
+    Log '      claude auth login           (opens your browser to sign in)'
+    Log '      claude setup-token          (long-lived token; best for unattended runs)'
     Log ''
     Log '  Refusing to run blind - without the meter I cannot know when to stop'
     Log '  or when to fire the shutdown, so I would burn quota uncontrolled.'
