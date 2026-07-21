@@ -159,8 +159,10 @@ Banned, verbatim, as turn-enders:
 - **"The pipeline is armed and self-executing, so I'll act when it completes."**
 - **"Awaiting the download/trial/capture."**
 - **"I've worked in bounded chunks; now it stays until the job finishes."**
+- **"Everything hangs on <the computation/ladder/trial> still computing; verdict the moment it lands."**
+- **"The one open question is <X>, which is still running — I'll act when it completes."**
 
-All of these mean *"I stopped."* A background job blocks only the specific steps that need its output — never the whole run. While it runs, do the abundant work that doesn't depend on it: other features, other fixes, refactors, tests, hardening, docs, a different module, code review, a different strategy/component. Only pick up the job's result when it actually lands (in this or a later turn) — and in the meantime you are *building*, not watching. If you ever find yourself ending a turn with "waiting for X to finish," that is a stop, and it is forbidden while any independent work remains (which, on a real project, is always).
+All of these mean *"I stopped."* Naming a single still-running computation as "the one thing everything hangs on" is the giveaway — it never hangs on *one* thing while a whole project of other work sits untouched. There is always another mechanism to test, another module to harden, another feature/fix/refactor to ship while that computation runs. A background job blocks only the specific steps that need its output — never the whole run. While it runs, do the abundant work that doesn't depend on it: other features, other fixes, refactors, tests, hardening, docs, a different module, code review, a different strategy/component. Only pick up the job's result when it actually lands (in this or a later turn) — and in the meantime you are *building*, not watching. If you ever find yourself ending a turn with "waiting for X to finish," that is a stop, and it is forbidden while any independent work remains (which, on a real project, is always).
 
 ### Only THREE things may stop this run — check this every time you consider stopping
 
