@@ -76,7 +76,28 @@ Because the monitor writes `THRESHOLD`/`WEEKLYTHRESHOLD` and the `STOP` flag int
 
 This runs `claude -p "/usage"` **inside PowerShell** (critical — Git Bash mangles the `/usage` argument into a file path, PowerShell does not), parses the two limit lines ("Current session: N% used", "Current week: N% used"), and writes `.claude/usage-status.txt` with `STATUS`, `SESSION`, `WEEK`, `PERCENT` (the higher of the two, for the bar), `THRESHOLD`, `WEEKLYTHRESHOLD`, `STOP`, and a `BAR`. It ignores the breakdown stats like "96% of your usage was at >150k context".
 
-Confirm `STATUS=OK` with a sensible `PERCENT`. `STATUS=UNKNOWN`/`TIMEOUT` is a genuine fault — show the user the raw output and ask whether to stop or fall back to a fixed work budget. Never treat an unreadable meter as "0% — keep going forever."
+Confirm `STATUS=OK` with a sensible `PERCENT`. `STATUS=UNKNOWN`/`TIMEOUT` is a genuine fault — never treat an unreadable meter as "0% — keep going forever." But before giving up on it, run the auth check below, because **the #1 cause of an unreadable meter is not being logged in.**
+
+### FIRST-USE METER CHECK: if it's unreadable, you're probably not authenticated
+
+On the very first reading of a run, if the meter comes back unreadable — the raw `/usage` output is just a cost/token stub like:
+
+```
+Total cost:            $0.0000
+Total duration (API):  0s
+...
+Usage:                 0 input, 0 output, 0 cache read, 0 cache write
+```
+
+— with **no `Current session: N%` / `Current week: N%` lines**, that almost always means the Claude CLI **isn't logged in** (an expired or missing OAuth session makes `/usage` return this stub instead of the limit panel). Do this before treating the meter as broken:
+
+1. **Tell the user to authenticate**, in these words or similar:
+   > The usage meter isn't readable — the CLI looks logged out. Please authenticate: run **`claude setup-token`** in a terminal (cmd/PowerShell), or say the word and I'll launch it for you (it opens your browser to log in). Once you're logged in, I'll re-read the meter and start the run.
+2. **Offer to launch it** — you may run `claude setup-token` (it opens the browser for the user to complete login); you cannot enter their credentials, but you can kick off the flow. Wait for the user to confirm they've finished logging in.
+3. **Re-read the meter** with the Step 2 command. If it now shows `Current session: N%`, proceed normally.
+4. **If it's STILL a stub after confirmed login**, then it's a genuine tooling limitation (headless `-p "/usage"` may not emit percentages in this CLI version) — *now* fall back honestly: tell the user the meter can't be read even when authed, and either (a) they give you a fixed budget you bound the run by (a number of chunks / a wall-clock time via [[work-until-time]]), or (b) they watch their own usage and stop you with the [[control]] button. Do not silently guess a percentage, and do not treat unreadable as license to run forever.
+
+This same auth cause applies to the ENFORCED wrapper (`wul_enforce.ps1`) — if it reports the meter unreadable at startup, the fix is the same: log in with `claude setup-token`, then relaunch.
 
 ## Step 3: Work in bounded chunks, checking on-demand — and stop *predictively*
 

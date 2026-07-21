@@ -112,10 +112,29 @@ if ($SessionCeiling -gt 0) { $ceilDesc += "session $SessionCeiling%" }
 if ($WeeklyCeiling  -gt 0) { $ceilDesc += "weekly $WeeklyCeiling%" }
 Log "ENFORCER START | ceiling: $($ceilDesc -join ' / ') | dir: $ProjectDir | perm: $PermissionMode"
 
-# baseline reading
+# baseline reading — if unreadable, DO NOT run blind. The #1 cause is being logged out.
 $u = Get-Usage -TimeoutSec $UsageTimeoutSec
-if ($u.Ok) { Log ("baseline usage -> session {0}% / week {1}%" -f $u.Session, $u.Week) }
-else { Log "baseline usage unreadable (continuing; will recheck after first turn)" }
+if (-not $u.Ok) {
+    Log "baseline usage UNREADABLE. Retrying once in case of a transient hiccup..."
+    Start-Sleep -Seconds 3
+    $u = Get-Usage -TimeoutSec $UsageTimeoutSec
+}
+if (-not $u.Ok) {
+    Log '======================================================================'
+    Log '  METER UNREADABLE - the Claude CLI is most likely NOT LOGGED IN.'
+    Log '  claude -p "/usage" is returning a cost stub with no percent lines.'
+    Log ''
+    Log '  FIX: authenticate, then relaunch this window:'
+    Log '      claude setup-token          (opens your browser to log in)'
+    Log ''
+    Log '  Refusing to run blind - without the meter I cannot know when to stop'
+    Log '  or when to fire the shutdown, so I would burn quota uncontrolled.'
+    Log '  (If you ARE logged in and it is still a stub, headless /usage may not'
+    Log '   expose percentages in this CLI version - use a time-bound run instead.)'
+    Log '======================================================================'
+    return
+}
+Log ("baseline usage -> session {0}% / week {1}%" -f $u.Session, $u.Week)
 
 if ($u.Ok -and (Ceiling-Reached $u)) {
     Log "Already at/over the ceiling before starting. Nothing to do."
