@@ -137,6 +137,8 @@ Loop:
 
 So for a **danger-zone ceiling** the effective stop lands *at or just under* it (protecting against lockout); for a **soft ceiling below the danger zone** you run all the way to it and may drift a hair past — which is fine and is what "use the whole budget" means. The predictive headroom is lockout insurance, not a reason to leave a low target's budget unspent.
 
+**Close the gap by shrinking chunks near the ceiling.** The predictive stop leaves exactly `max_session_delta` of headroom — so if your chunks jump ~5%, you stop ~5% short (e.g. 85 of a 90 ceiling). That gap is real budget. To land closer to the ceiling *without* risking overshoot, **deliberately make your chunks smaller as you approach it**: within ~2× your jump size of the ceiling, switch to minimal chunks (one small edit, one short test) so `max_session_delta` shrinks to ~1–2%, and the predictive stop then lands at ~88–89 of a 90 ceiling instead of 85. Small final chunks = small headroom = you use almost all of the budget while still never crossing into lockout. Leaving 5% because your chunks stayed large near the line is avoidable — tighten them and keep going. (The ENFORCED wrapper sidesteps this entirely: it reads after each turn and stops at the first reading `>= ceiling`, so it naturally lands *at* 90 rather than a conservative 85.)
+
 ### Resets bank your progress — the ceiling is a cumulative budget
 
 This is the key rule for resets: **the ceiling counts total work across the whole run, so a reset does not hand you a fresh full budget.** What you already spent before the reset is banked and subtracted from what's left.
