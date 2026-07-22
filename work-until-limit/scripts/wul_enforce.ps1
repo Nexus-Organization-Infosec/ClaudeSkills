@@ -8,8 +8,15 @@ param(
     [int]$UsageTimeoutSec = 120,      # per /usage call timeout
     [int]$MaxUnreadable   = 3,        # consecutive unreadable meter reads before giving up (valid stop)
     [int]$MaxCrashes      = 5,        # consecutive claude crashes before giving up
-    [switch]$ShutdownWhenDone         # power off the PC once the ceiling is reached
+    [switch]$ShutdownWhenDone,        # power off the PC once the ceiling is reached
+    [switch]$DryRun                   # DEMO: never call claude, never shut down; simulate a rising meter so you can watch the loop drive to the ceiling at zero cost
 )
+
+# In dry-run we simulate the meter climbing so the whole control flow can be
+# observed (loop -> read -> re-invoke -> ceiling -> shutdown) without spending
+# any quota or touching the real CLI. Starts a bit below nothing so the first
+# read is small, then climbs ~11% per turn.
+$script:DryMeter = 3
 
 # ============================================================================
 #  work-until-limit ENFORCER  (external control loop)
@@ -59,6 +66,10 @@ function Log {
 # --- read + parse the real usage meter (reuses usage_monitor.ps1's regexes) ---
 function Get-Usage {
     param([int]$TimeoutSec)
+    if ($DryRun) {
+        $script:DryMeter += 11
+        return @{ Ok = $true; Session = [math]::Min($script:DryMeter, 100); Week = 0 }
+    }
     $job = Start-Job -ScriptBlock {
         try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
         claude -p "/usage" 2>&1 | Out-String
@@ -183,12 +194,18 @@ while ($true) {
     }
 
     Log ("--- turn {0} (claude {1}) ---" -f $turn, $(if ($firstTurn) { "-p" } else { "-c -p" }))
-    try {
-        & claude @args 2>&1 | ForEach-Object { Write-Host $_ }
-        $code = $LASTEXITCODE
-    } catch {
-        $code = 999
-        Log "claude invocation threw: $($_.Exception.Message)"
+    if ($DryRun) {
+        Log ("[DRYRUN] would invoke: claude {0}" -f ($args -join ' '))
+        Start-Sleep -Seconds 1
+        $code = 0
+    } else {
+        try {
+            & claude @args 2>&1 | ForEach-Object { Write-Host $_ }
+            $code = $LASTEXITCODE
+        } catch {
+            $code = 999
+            Log "claude invocation threw: $($_.Exception.Message)"
+        }
     }
 
     if ($code -ne 0) {
@@ -227,6 +244,10 @@ while ($true) {
 Log "ENFORCER END."
 
 if ($ShutdownWhenDone) {
-    Log "shutdownwhendone set -> powering off in 20s (Ctrl+C this window to cancel)."
-    try { shutdown /s /t 20 /c "work-until-limit reached ceiling; shutting down." } catch { Log "shutdown failed: $($_.Exception.Message)" }
+    if ($DryRun) {
+        Log "[DRYRUN] would power off now (shutdown /s /t 20). Nothing actually happens in dry-run."
+    } else {
+        Log "shutdownwhendone set -> powering off in 20s (Ctrl+C this window to cancel)."
+        try { shutdown /s /t 20 /c "work-until-limit reached ceiling; shutting down." } catch { Log "shutdown failed: $($_.Exception.Message)" }
+    }
 }
