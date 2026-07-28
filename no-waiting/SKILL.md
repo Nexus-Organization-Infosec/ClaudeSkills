@@ -28,6 +28,17 @@ are pure dead time — you've frozen yourself for ten minutes doing nothing whil
    If it's done, use the result. If not, go back to step 2 and do more work; check again later. Never precede the check with a `sleep`.
 4. **Only block if you truly cannot proceed on anything else** — which, on a real project with a backlog, almost never happens. If you genuinely must wait on a condition, use a non-blocking waiter (e.g. the Monitor tool with an until-condition) rather than a fixed `sleep`, and still prefer interleaving real work.
 
+## Backgrounding is step 1, NOT the finish line
+
+The subtle trap: you correctly launch the job in the background and correctly avoid polling — and then **end your turn** with "I'll report each as it lands." That is still idle-waiting. You dodged the `sleep` but committed the same sin one level up: you handed the turn back to wait, just without the visible `sleep`. "Rather than polling" is right; "I'll report as it lands" *as your last line* is wrong — together they mean "I backgrounded it and then stopped."
+
+Banned as turn-enders (these all mean you stopped to wait):
+- **"I'll report each as it lands rather than polling."**
+- **"Everything's in flight; I'll update you as results come in."**
+- **"The experiments are running; results next."**
+
+Backgrounding a job **obligates** you to keep working in the *same turn*, not to sign off. Launch → immediately start the next real task → let the background results arrive whenever they arrive (the harness notifies you; you don't watch). If your message ends right after launching background jobs, you didn't apply this skill — you just moved the wait off-screen.
+
 ## The rule of thumb
 
 **Waiting is not work.** A turn that consists of "start job → sleep → read result" did almost nothing; a turn that consists of "start job in background → build the next thing → peek at the job → keep building" did a full unit of work *and* advanced the job. Always the second shape.
