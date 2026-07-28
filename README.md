@@ -76,6 +76,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **stay-here**: Stay inside the current project folder. Do not read or borrow from anywhere else on the machine.
 - **no-internet**: Offline mode. Local files only, no network calls.
 - **no-talk**: Silent mode. Just do the work and print the results at the end, no chatter.
+- **no-waiting**: Never block on a wait. Forbids foreground sleep/idle-polling for a long job (fetch, download, build, backtest); instead it backgrounds the job and keeps doing real work, checking on it with a quick non-blocking peek at boundaries. Waiting is not work.
 - **dont-use-skills-rn**: Turn the skills layer off. No skill runs on its own until you type a slash command again.
 - **read-skills-again**: Force a fresh re-read of the actual SKILL.md files from disk, even when the model thinks it already knows them. The skills change often, so it reads the current text instead of a stale mental copy, then applies it.
 - **decide**: Let the model pick which skills to use for the task on its own, always at least one. It reads the request, chooses the best-fitting skill(s), says which and why, then does the work under them.
