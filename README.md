@@ -64,6 +64,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **quick-documentate**: A short overview doc, fast.
 - **sort-prompt**: Turn a messy brain dump into clean, organized text without changing what you meant.
 - **later-ideas**: Park ideas for later. It fleshes them out now and files them, then builds them when the project is ready.
+- **invent**: Think like an inventor and produce a genuinely new invention, not a rehash. It works from first principles, generates bold unobvious concepts, picks the strongest on novelty times feasibility times value, develops it into a concrete buildable design, and pressure-tests it honestly.
 - **mask**: Write like a human. No em dashes, and none of the usual signs that give AI writing away.
 - **research**: Search the web for a fix or an answer. Official docs, GitHub issues, Stack Overflow, Reddit, and it weighs the sources.
 - **flutter-design**: Build clean Material 3 (Material You) UI for Android in Flutter, with proper theming, dark mode, and accessibility.
