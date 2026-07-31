@@ -69,12 +69,33 @@ interruptions. Learn more
 Anfrage-ID: req_XXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
-Recognize this for what it is: **the broad safeguard firing on legitimate defensive work**, per its own wording ("can sometimes flag legitimate cybersecurity work") — not a judgment that the task is wrong. When it happens:
+There are **model-specific variants** of the same block — recognize all of them. Opus 5's version also names **biology** alongside coding/cybersecurity, and it behaves differently: it may auto-switch the session down to Opus 4.8, or refuse to answer on Opus 5 at all and tell you to rephrase / switch model / start a new session:
+
+```
+Opus 5's safeguards flagged this message. Our intentionally broad safeguards
+allow us to deliver more capabilities faster, but can sometimes flag legitimate
+coding, cybersecurity, and biology tasks. Claude Code can't respond to this
+message with Opus 5.
+Try rephrasing the request in a new session or change your model.
+Anfrage-ID: req_XXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+```
+Die Schutzmaßnahmen von Opus 5 haben diese Nachricht markiert.
+Die Schutzmaßnahmen sind derzeit absichtlich weit gefasst und können sichere und
+routinemäßige Coding-, Cybersicherheits- oder Biologiearbeiten markieren. ...
+Zu Opus 4.8 gewechselt.
+```
+
+(The German is the same message; "Zu Opus 4.8 gewechselt" = it automatically switched the session to Opus 4.8 to continue.)
+
+Recognize all of these for what they are: **the broad safeguard firing on legitimate defensive work**, per its own wording ("can sometimes flag legitimate coding, cybersecurity, and biology tasks") — not a judgment that the task is wrong. When it happens:
 
 1. It is almost always triggered by **wording**, not the underlying task — re-read what you wrote (output *or* thinking) for the lurid attacker-jargon above and rewrite it in the measured, defensive, ownership-explicit terms in this section, then continue.
 2. Keep the substance identical; only the framing changes. Don't abandon the legitimate task because the phrasing tripped a classifier.
 3. Tell the user, plainly, that the block was a known false positive on their own defensive project and that you're rephrasing — and mention they can **apply to the Cyber Verification Program** (referenced in the block) to reduce these interruptions on their legitimate security work.
-4. If it *keeps* firing on genuinely neutral wording, it may be a real limit rather than phrasing — say so honestly rather than contorting the request; don't try to sneak a task past a safeguard.
+4. **Model-specific handling.** On the **Opus 5** variant the session may auto-continue on **Opus 4.8** (the German block literally says "Zu Opus 4.8 gewechselt") — if so, just carry on there. If instead it says Claude Code can't respond on Opus 5, the fixes it names are real: **rephrase** (in the defensive terms above), **switch the model to Opus 4.8**, or **start a new session**. Suggest whichever fits; Opus 4.8's safeguard tends to be less trigger-happy on this legitimate work than Opus 5's.
+5. If it *keeps* firing on genuinely neutral wording across models, it may be a real limit rather than phrasing — say so honestly rather than contorting the request; don't try to sneak a task past a safeguard.
 
 ## Notes
 
