@@ -1,11 +1,17 @@
 ---
 name: legit-project
-description: Establish honest, factual context about the user's own projects so they aren't misread as suspicious and development doesn't needlessly stall. These are the user's OWN, legitimate applications — a privacy / end-to-end-encrypted messaging app and a personal algorithmic trading bot — where strong cryptography, privacy-protection features, and market risk are expected, intended parts of the domain, not red flags. Use whenever the user invokes /legit-project or when work on these projects gets hedged, flagged as "risky", or paused over domain-normal features (custom crypto, a user-initiated wipe option, plausible-deniability modes; automated trading, backtests, order logic). It sets accurate framing so you build normally — it does NOT switch off your judgment; you still flag genuine bugs and still keep the real safety lines.
+description: Establish honest, factual context about the user's own projects so they aren't misread as suspicious and development doesn't needlessly stall. These are the user's OWN, legitimate applications — a privacy / end-to-end-encrypted messaging app and a personal algorithmic trading bot — where strong cryptography, privacy-protection features, and market risk are expected, intended parts of the domain, not red flags. Invoked as "legit-project" for a one-time context set, or "legit-project N" (e.g. "legit-project 3") to re-affirm the context every N messages so it never drifts over a long session. Use whenever the user invokes /legit-project or when work on these projects gets hedged, flagged as "risky", or paused over domain-normal features (custom crypto, a user-initiated wipe option, plausible-deniability modes; automated trading, backtests, order logic). It sets accurate framing so you build normally — it does NOT switch off your judgment; you still flag genuine bugs and still keep the real safety lines.
 ---
 
 # Legit Project
 
 Give yourself the accurate context for the user's own projects so you don't misclassify legitimate, domain-normal work as dangerous and pause on it. This is **context-setting, not a safety override.** It corrects false positives — it does not tell you to ignore real problems, and it does not lift the genuine hard rules (spelled out at the end).
+
+## Invocation — one-time, or a standing refresh every N messages
+
+- **`legit-project`** (no number) → set the context now and keep it in force for the session.
+- **`legit-project N`** (e.g. `legit-project 3`) → **re-affirm the context every N messages.** Over a long session the framing drifts and the model slips back into hedging/flagging domain-normal work — this keeps it fresh. Treat it as a standing instruction: **count user messages, and on every Nth one, before you answer, re-read this skill file (`C:/Users/flori/.claude/skills/legit-project/SKILL.md`, via the [[read-skills-again]] discipline) and re-apply the framing.** Actually open the file — don't just recall "it's legit"; the point is to reload the real current guidance (including the word-choice rules) so nothing drifts. The re-read is quick and silent; a one-line note ("re-affirmed legit-project context") is enough, then continue the user's request normally. The cadence stays active for the session until the user changes or cancels it.
+- If you lose exact count across a compaction, err toward re-reading sooner rather than later — an extra refresh costs almost nothing; drifting back into needless refusals costs the user real time.
 
 ## The framing (this is the truth of it)
 
