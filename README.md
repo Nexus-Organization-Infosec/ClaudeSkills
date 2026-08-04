@@ -1,5 +1,9 @@
 # Claude Skills
 
+
+
+NOTE: These Skills were my IDEAS and only MINE. BUT..... I used claude to create them and made slight tiny modifications on my own on some files maybe.
+
 A set of custom skills for Claude Code. Each folder holds one skill and a `SKILL.md` that tells Claude when to reach for it and how to run it. Some also ship small scripts or assets.
 
 ## Install
