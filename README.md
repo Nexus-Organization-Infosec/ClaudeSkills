@@ -36,6 +36,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **improve-performance**: Make it faster. Profiles first to find the real bottleneck, fixes the biggest one, then proves the gain with before and after numbers.
 - **new-features**: Build new features into the project. Say `new-features 10` for ten. Each one is real and working, never a stub.
 - **improvement-ideas**: Get a ranked menu of ideas for your project. Improvements, fixes worth doing, fresh features, and opportunities you may not have thought of. It only suggests, it does not build, and it ends by asking which ones to do.
+- **checklist**: Put a list of ideas in front of you as a clickable approval window (CustomTkinter checkboxes plus a Send button). Claude writes the ideas, you tick the ones you want, and it builds only the checked ones. Unchecked ideas are rejected. Great after improvement-ideas or new-features.
 
 - **swarm**: Throw a parallel team of sub-agents at one prompt, each on the model that fits its job. Opus 4.8 on the core coding, Sonnet 5 on secondary coding, Haiku 4.5 on the light supporting work, all at once, then it merges and verifies the combined result. Splits the work so no two agents touch the same files.
 - **swarm-analyze**: The read-only version of swarm. Parallel agents investigate the project and report every finding to the control agent (Opus 4.8), which triages each one (fix / skip / needs your decision) before anything is changed. Analysis first, judged, then only the approved fixes get made.
