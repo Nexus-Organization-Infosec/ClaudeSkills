@@ -49,6 +49,9 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **bug-hunt**: Hunt the whole codebase for bugs of every size, from crashes to tiny edge cases, then fix them.
 - **placeholder-replacer**: Find stub, fake, simulated, and cut off code and replace it with real working code.
 - **full-implement**: Turn shallow, easy, barely working code into valuable, deploy ready implementations. Encourages real custom solutions, custom encryption included, done well and tested.
+- **make-it-make-sense**: Take something implemented in a strange or awkward way (a chat panel placed wrong, logic in the wrong layer, a confusing flow) and rework the placement/structure so it makes sense, without breaking behavior.
+- **build-it-new**: Rebuild an existing thing from scratch, same purpose but better and self-made. Salvages the requirements, discards the messy approach, proves the new one is actually better.
+- **selfmade**: Build the core yourself instead of wrapping a library. Say make vim and it writes the editor (buffer, modes, keybindings, rendering) from scratch, not import an-editor-lib.
 
 ### Cleaning up
 - **cleanup**: Revamp a codebase. Remove dead code, reorganize into folders, tidy names and comments, and keep it running the whole time.
