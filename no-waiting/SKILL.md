@@ -47,6 +47,16 @@ Backgrounding a job **obligates** you to keep working in the *same turn*, not to
 - "I'll wait for X to finish and then continue" is the same idle-wait: X finishes on its own; you continue *now* on something else.
 - Time spent blocked is time the user paid for and got nothing back. Treat every minute of blocking as a bug.
 
+## Enforced by a hook (not just guidance)
+
+This rule is backed by a real mechanism, so it applies to **every skill and every Bash call**, not just when this skill is active. A `PreToolUse` hook (`hooks/no_wait_loops.py`, registered in `settings.json` for the `Bash` matcher) inspects each command and **blocks** it if it's a blocking wait:
+- a polling loop (`while`/`until` … `sleep` … `done`), or
+- a long fixed foreground `sleep` (≥ 20s, or any `m`/`h`/`d` suffix).
+
+It **allows**: backgrounded commands (`run_in_background: true`), short sleeps (< 20s), and quick non-blocking peeks. If you are ever genuinely certain you must block-wait, add `#allow-wait` to the command as an explicit escape hatch. When the hook blocks a command, do what it says: background the job and keep working.
+
+To install the hook on a machine: copy `hooks/no_wait_loops.py` to `~/.claude/hooks/` and add a `PreToolUse` → `Bash` hook in `~/.claude/settings.json` pointing at it (`python .../no_wait_loops.py`). Takes effect on a new session.
+
 ## Notes
 
 - This is the general-purpose version of the rule [[work-until-limit]] enforces during a bounded run ("background tasks running is never idle time"); `/no-waiting` applies it everywhere, any time, not just inside a quota run.
