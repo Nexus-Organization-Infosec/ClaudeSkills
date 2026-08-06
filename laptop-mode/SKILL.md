@@ -1,11 +1,22 @@
 ---
 name: laptop-mode
-description: Guard an unplugged laptop during a long/autonomous run — watch the battery, and when it drops to a threshold (default 20%), stop working and shut the PC down cleanly before it dies. Reads the battery with a PowerShell command; monitors more and more often as the charge falls (it drops fast near the end). Invoked as "laptop-mode" (shut down at 20%) or "laptop-mode N" (e.g. "laptop-mode 10" shuts down at 10%). Use whenever the user invokes /laptop-mode or says "I'm on battery, shut down before it dies", "watch the battery and power off at X%", or runs an autonomous session on an unplugged laptop. Pairs with [[shutdown-when-done]] for the actual power-off.
+description: A BACKGROUND battery safety net for a long/autonomous run — NOT a task in itself. It quietly watches the charge while you keep doing the real work, and only if the battery falls to a threshold (default 20%) does it stop and shut the PC down cleanly before it dies. Never becomes the focus: the actual job (a work-until-limit run, an improve loop, a build) stays the focus; laptop-mode just guards it as an emergency fallback. Reads the battery with a PowerShell command; monitors more often as the charge falls (it drops fast near the end). Invoked as "laptop-mode" (guard at 20%) or "laptop-mode N" (e.g. "laptop-mode 10"). Use whenever the user invokes /laptop-mode or says "I'm on battery, shut down before it dies", "watch the battery in the background", or runs an autonomous session unplugged. Pairs with [[shutdown-when-done]] for the actual power-off.
 ---
 
 # Laptop Mode
 
 The user is running on battery and doesn't want the laptop to die mid-work (losing state, or just powering off dirty). This mode watches the charge during the run and, when it hits the threshold, **stops working and shuts down cleanly** — a graceful power-off you control, instead of a hard drain to 0%.
+
+## CRITICAL: laptop-mode is a BACKGROUND SAFETY NET — never the focus
+
+Laptop-mode is **not the task.** It is a guard that sits quietly in the background of whatever the *real* work is (a [[work-until-limit]] run, an [[improve]] loop, a build) and only fires if the battery actually runs low. The single most common mistake — the one that prompted this rule — is treating laptop-mode as the main job: announcing "I'll monitor the battery and shut down at 20%" and *centering the session on that*, instead of doing the actual work the user asked for.
+
+- **Keep doing the real work.** If the user invoked laptop-mode alongside other skills (e.g. "`/improve` … `/work-until-limit 90` `/shutdown-when-done` `/laptop-mode`"), the **actual task is the improve / work-until-limit 90 run** — that's what you spend the session doing. Laptop-mode just guards it. Do not stop, slow down, or reframe the session around the battery.
+- **The battery guard lives in the background.** On AC, the watcher process (below) does the watching — you don't narrate it or think about it; you work. It only surfaces if the battery is unplugged and falls to the threshold.
+- **Keep it in "back of mind," don't foreground it.** Fold the battery check into the same boundary where you already take other readings; a one-line mention only if something changes (unplugged, or nearing the threshold). The planned end of the run is still whatever the *real* bound is (the 90% usage ceiling, the goal, etc.) — the battery threshold is an **emergency fallback** that pre-empts it only if the charge would otherwise die first.
+- **Whichever bound trips first wins, but the battery one is the fallback, not the plan.** If usage hits 90% first, that ends the run normally. The battery shutdown is only there for the case where the charge would run out before the planned end. Treat it as insurance, not the objective.
+
+So when laptop-mode is combined with a work run: **go do the work run.** Start the watcher, then get straight into the actual task and keep at it — the battery guard takes care of itself.
 
 ## Read the battery with this command
 
@@ -58,7 +69,7 @@ The point of the threshold is to shut down *before* the battery forces it. Treat
 
 ## Composing with the run
 
-- Laptop-mode is a **safety bound layered on top of the actual work** (e.g. a [[work-until-limit]] run, an [[ultragoal]], a [[loop]]). Whichever limit trips first wins: if the battery hits the threshold before the usage ceiling, the battery shutdown fires; if usage/clock ends the run first, that ends it. Fold the battery read into the same per-chunk boundary where you take other readings.
+- Laptop-mode is a **safety bound layered UNDER the actual work** (e.g. a [[work-until-limit]] run, an [[ultragoal]], a [[loop]]) — the work is the focus, the battery guard is the net. Whichever limit trips first wins: if the battery hits the threshold before the usage ceiling, the battery shutdown fires; if usage/clock ends the run first, that ends it normally. But the *planned* end is the work bound (e.g. 90% usage); the battery threshold is the emergency that only matters if the charge would die first. Fold the battery read into the same per-chunk boundary where you take other readings — quietly, without making it the topic.
 - With [[shutdown-when-done]] it's a natural pair — laptop-mode decides *when* (battery threshold), shutdown-when-done does the *how* (summary + power off).
 - Respects [[no-talk]] (monitor quietly; only speak up at the threshold or if the battery can't be read).
 
