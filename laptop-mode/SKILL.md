@@ -28,7 +28,17 @@ Get-CimInstance Win32_Battery | Select-Object EstimatedChargeRemaining, BatteryS
 
 Battery percentage is not linear — it falls slowly up high and **plummets near the bottom**, so a stale reading can jump right past your threshold to a dead battery. So the lower it gets, the more often you check (per [[no-waiting]], these are quick boundary checks between work chunks, never a blocking sleep-loop):
 
-- **On AC (`BatteryStatus 2`)** → the battery is fine/charging; check occasionally (e.g. once in a while) and keep working normally. If it gets unplugged, you'll catch it on the next read and switch to the cadence below.
+- **On AC (`BatteryStatus 2`) → immediately launch the background watcher; do NOT inline-poll.** The instant a read shows `BatteryStatus 2`, start `scripts/battery_watch.ps1` as a **background task** (Bash tool, `run_in_background: true`) — it runs forever (until you stop it) and writes the live battery state to a status file every ~20s. Then keep working normally and just take an **instant non-blocking peek at the status file** at each boundary instead of running the CIM query yourself:
+
+  Launch it in the background (`run_in_background: true`):
+  ```bash
+  powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/flori/.claude/skills/laptop-mode/scripts/battery_watch.ps1 -StatusFile .claude/battery-status.txt
+  ```
+  Then check it with an instant peek at each boundary:
+  ```bash
+  cat .claude/battery-status.txt   # read ONAC / CHARGE / STATUS
+  ```
+  While `ONAC=1`, the machine is on AC — keep working, glance at the file occasionally. **When `ONAC` flips to `0` (unplugged) or `CHARGE` starts falling**, switch to the active battery cadence below (and you can keep reading `CHARGE` from the watcher's file, which updates continuously). The watcher is backgrounded, so the wait-loop hook allows it and it never blocks you. **Stop it** (kill the background shell) when the run ends, when you power off, or if the user cancels laptop-mode — it's the one thing that "runs forever until Claude stops it."
 - **Above ~40% and discharging** → check every several work chunks.
 - **20%–40%** → check every chunk.
 - **Under 20% (or within ~10 points of a low threshold like `laptop-mode 10`)** → check **very frequently — every short chunk**, and keep chunks small. This is the danger zone where it drops fast; a big chunk here can outrun your last reading.
