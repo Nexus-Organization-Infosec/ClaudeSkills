@@ -24,6 +24,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **limit-refresh**: An add-on for work-until-limit. If a usage limit is about to reset, wait it out once and keep going across the reset.
 - **save-usage**: Slow down how fast your usage burns. It reads what is actually driving your usage and fixes the biggest cause first.
 - **shutdown-when-done**: Turn the PC off once every task is truly finished.
+- **laptop-mode**: On battery, watch the charge and shut the PC down cleanly before it dies. Reads the real battery level, monitors more and more often as it falls (it drops fast near the end), and powers off at a threshold you set. Say `laptop-mode 10` to shut down at 10%. Pairs with shutdown-when-done.
 - **play-sound-when-done**: Play a soft chime over your speakers when the work is done, so you can step away and come back when you hear it.
 - **sound-generator**: Generate custom sound effects from a description (chimes, notification blips, alert buzzers, success jingles, retro beeps) as real WAV files, with a dependency-free synth. Previews and iterates, and can install the result as your done-chime. No downloads or audio libraries needed.
 - **control**: A small red STOP button window. Press it and Claude finishes the current task, then stops cleanly, instead of you cutting it off mid action.
