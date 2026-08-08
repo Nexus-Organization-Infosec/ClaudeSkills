@@ -17,8 +17,9 @@ Put on the inventor's hat and create something **new**. The whole point is origi
 ## How to invent (the process)
 
 1. **Frame it.** If the user gave a domain or problem, anchor there; if they gave nothing, pick a rich vein (or ask what area excites them). State the problem or opportunity crisply, including the constraint you suspect can be broken.
-2. **Diverge — generate many bold candidates.** Produce a spread of genuinely different concepts, not five flavors of one. Push past the first obvious answers (those are what everyone already thought of) into the unobvious ones. Quantity and range first; judge later.
+2. **Diverge — generate many bold candidates, using the idea engines below.** Produce a spread of genuinely different concepts, not five flavors of one. Push past the first obvious answers (those are what everyone already thought of) into the unobvious ones. Quantity and range first; judge later. Don't just "be creative" — run the engines.
 3. **Select.** Pick the single strongest candidate on **novelty × feasibility × value** — it must be actually new, plausibly buildable, and worth building. Say briefly why it beats the others.
+   - **Verify the novelty — prior-art check.** Before committing to "this is new," actually check that it doesn't already exist: search for it ([[research]] / the web), name the closest existing things, and confirm your idea does something they don't. If it turns out to exist, that's a *good* outcome caught early — either sharpen the idea until it's genuinely differentiated, or drop to your next candidate. Claimed novelty that a five-minute search would disprove is the most embarrassing failure of an "invention."
 4. **Develop it into a real invention.** Work the chosen idea out concretely:
    - **What it is** — one sharp sentence a smart person immediately gets.
    - **How it works** — the actual mechanism/principle, in enough detail that it's clearly not hand-waving. The core novel step is the heart of it — make that explicit.
@@ -26,6 +27,18 @@ Put on the inventor's hat and create something **new**. The whole point is origi
    - **Why it matters** — the value: who benefits, how much, why now.
    - **How to build it** — the concrete path: key components, the hardest technical risk, the cheapest prototype that would prove the core idea, and roughly what it'd take.
 5. **Pressure-test it honestly.** Name the biggest reason it might fail (physics, cost, adoption, a hidden assumption) and whether there's a way around it. An invention you've stress-tested is worth ten you've only celebrated. If the core idea collapses under the test, say so and either fix it or swap to your next-best candidate — don't dress up a broken idea.
+
+## Idea engines — concrete ways to force novelty (don't just "brainstorm")
+
+"Be creative" produces safe, obvious ideas. Real inventors run *mechanisms* that manufacture the unobvious. Use these on the diverge step — run several, they each surface different ideas:
+
+- **The contradiction method (the big one).** Most problems hide a **trade-off everyone treats as a law**: "to make it stronger you must make it heavier", "to make it more secure you must make it slower", "to make it cheaper you must make it worse". Name that contradiction explicitly — *improving X currently forces Y to get worse*. Then invent the thing that **refuses the trade-off** — that gets X *without* paying Y — instead of balancing it. Breakthroughs are almost always a resolved contradiction, not a compromise. Ask: what would have to be true for this trade-off to simply not exist? Then build toward that.
+- **Assumption inversion.** List the assumptions everyone accepts about how this is done, then deliberately flip each one and see what becomes possible. "It must be centralized" → what if it's peer-to-peer? "It needs a battery" → what if it harvests its own power? "The reader is active, the tag passive" → what if it's the other way round? The invention often lives on the far side of one flipped assumption.
+- **Cross-domain transplant.** Take a mechanism that works brilliantly in a *distant* field and import it into this problem. Retroreflectors (optics) → acoustics. Immune systems (biology) → intrusion detection. Ant foraging → routing. Force the transplant even when it feels wrong; the friction is where novelty hides.
+- **Push to the extreme.** Ask what the solution looks like at the limits — if it had to be 100× cheaper, 1000× faster, work with zero power, scale to a billion, or run for a century unattended. Extremes break normal approaches and force a fundamentally different one.
+- **Remove the expensive part.** Whatever is the most costly, fragile, or complex component of how this is done today — ask what the thing looks like *without it at all*. The best inventions often *delete* a component everyone assumed was mandatory.
+
+Run at least the contradiction method plus one other; name which engine produced the candidate you pick, so the novelty is traceable to a mechanism, not luck.
 
 ## Build it, if asked
 
