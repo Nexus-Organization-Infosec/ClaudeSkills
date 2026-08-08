@@ -46,6 +46,17 @@ Careful mode also covers *how* you get things done, especially when the user has
 
 The user said it plainly: while they're away, don't use private or paid bypasses, cracks, hacks, or anything of the sort. Take the legitimate path or don't take it — and say so.
 
+## Turn debug/observability UP for server & network work
+
+When careful mode is active and the task touches external servers or the network — e.g. a message-routing/chat-delivery program that passes messages through servers — raise the debug/verbosity so **nothing contacts a server silently.** The user needs to see and vet the path.
+
+- **Name every server you actually reach.** When the program (or you) pings/connects to a server, log and surface **which server** it was — its name/host (and IP/port if relevant), plus the outcome (reached / failed / rejected). If it's their program, wire this into a debug log or a verbose flag so each hop is recorded, not swallowed.
+- **Check the server before using it.** Verify a server is the intended, trusted one *before* routing anything through it — reachability, expected host/cert/identity, not a look-alike or an untrusted mirror. Don't upload to or relay through a server you haven't checked.
+- **Raise the log level, don't lower it.** In careful mode prefer more detail on network activity, not less: connection attempts, chosen server, retries, and failures should all be visible. A silent success is worse here than a noisy one — the user is specifically trying to know *where their messages went*.
+- **Report the servers touched at the end.** Include, in the wrap-up, the list of servers actually contacted this run so the user can review the route at a glance (same spirit as the file blast-radius below).
+
+This applies especially while the user is away: with heightened debug they can come back and audit exactly which servers were pinged, instead of trusting that it went somewhere safe.
+
 ## When you're done
 
 Give a short, honest account of **every file you touched and why** — one line each — so the user can review the blast radius at a glance. If you deliberately left something alone that you'd normally have changed, or spotted an unrelated issue, mention it rather than acting on it.
