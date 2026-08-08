@@ -1,6 +1,6 @@
 ---
 name: loop
-description: Turn another skill (or skills) into a continuous loop that repeats until YOU quit — no round count, no ceiling, it just keeps going. Pair it with the work skills, e.g. "/loop /improve" or "/improve /improvement-ideas /loop", and it runs them over and over. Automatically launches the [[control]] STOP button at the start so you can end it gracefully anytime. Use whenever the user invokes /loop alongside other skills, or says "keep doing this on repeat", "loop improve and ideas until I stop", or "run this continuously until I quit". The only thing that ends it is the user (STOP button, or a new message) or a genuine blocker.
+description: Turn a skill OR a plain-language activity into a continuous loop that repeats until YOU quit — no round count, no ceiling, it just keeps going. Pair it with a skill ("/loop /improve", "/improve /improvement-ideas /loop") or just name an activity ("/loop skill creation", "/loop strategy creation", "/loop write tests") and it produces one new complete unit of that each iteration, over and over. Automatically launches the [[control]] STOP button at the start so you can end it gracefully anytime. Use whenever the user invokes /loop alongside a skill or an activity, or says "keep creating X until I stop", "loop this on repeat", or "run this continuously until I quit". The only thing that ends it is the user (STOP button, or a new message) or a genuine blocker.
 ---
 
 # Loop
@@ -13,13 +13,23 @@ Because this runs forever until the user intervenes, the user **must** have a gr
 
 ## Step 2: Identify what to loop
 
-Read what the user paired with `/loop`:
+`/loop` takes **either a skill or a plain-language activity** — whatever follows it is what repeats.
+
+**A) Paired with a skill:**
 - **`/loop /improve`** → run improvement rounds forever (one `/improve` round per iteration).
 - **`/loop /improvement-ideas`** → keep generating and refreshing ideas.
-- **`/improve /improvement-ideas /loop`** (the combo the user wants) → alternate: generate/refresh ideas, then act on the top ones with improvement rounds, then regenerate ideas against the new state, and repeat. Ideas feed the improvements; the improvements change the project; new ideas come from the changed project. A self-feeding cycle.
+- **`/improve /improvement-ideas /loop`** → alternate: generate/refresh ideas, then act on the top ones with improvement rounds, then regenerate ideas against the new state, and repeat. A self-feeding cycle.
 - **`/loop /bug-hunt`**, `/loop /new-features`, etc. → repeat that skill's unit of work each iteration.
 
-If it's ambiguous what one "iteration" is, pick the natural unit of the paired skill (a round, an idea acted on, a hunt pass) and keep it consistent.
+**B) Paired with a plain-language activity (no skill needed):**
+Whatever you name in words becomes the repeating task — you don't have to invoke a formal skill. Examples:
+- **`/loop skill creation`** → each iteration, invent and build **one new skill** (design it, write its `SKILL.md`, any scripts, test it), then start the next. Keep producing new, distinct skills until stopped.
+- **`/loop strategy creation`** → each iteration, create and validate **one new trading strategy** (design it, implement, backtest/judge it, keep or discard with the result), then the next. New distinct strategies, round after round.
+- **`/loop <anything>`** → repeat that activity's natural unit: "write tests" → a test module per iteration; "harden security" → one hardening pass; "add levels to the game" → one level; etc.
+
+**Define one iteration = one complete, real unit of that activity**, and keep it consistent: for "skill creation" that's one finished, tested skill (not a half-written stub); for "strategy creation" that's one designed-and-measured strategy. Each unit must be genuine and distinct from the last — no near-duplicates to pad the count (same spirit as the anti-churn rules). If the activity is vague, state the unit you chose in one line, then go.
+
+If both a skill and a plain activity are given, or it's ambiguous, pick the natural unit and keep it consistent across iterations.
 
 ## Step 3: Run the loop
 
