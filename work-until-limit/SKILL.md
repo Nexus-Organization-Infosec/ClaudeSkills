@@ -114,11 +114,47 @@ That is a **stop**, dressed as compliance. Every clause of it is banned:
 - **"If you want me to keep spending toward 60% I can go further."** BANNED (already banned generally, and doubly so here): they invoked `work-until-limit 60`, so they already said the word. Listing the further work you could do — the captive portal, the per-screen layouts, the BT/GPS wiring, the integration test — is proof the run had abundant work left. Naming it and quitting is the violation.
 - **"I delivered a complete, tested X rather than guessing a number."** BANNED. Delivering one complete thing is a *chunk*, not the run. "Rather than guessing a number" is a false dilemma: the alternatives to guessing are re-reading, proxy-bounding, or the ENFORCED wrapper — never stopping.
 
-**Prove it before you claim it — every run, with output.** "It's the known tooling limitation the skill documents" is NOT evidence, and this skill documenting the possibility is NOT proof that it applies today. Before you may call the meter unreadable you must, in this run, have: (a) run the Step 2 `-Once` command and shown its result, (b) run `claude auth status`, and (c) re-read once after that. Quote the actual output. An unproven "the meter doesn't work here" is a fabricated stop condition.
+**Prove it before you claim it — every run, with output.** "It's the known tooling limitation the skill documents" is NOT evidence, and this skill documenting the possibility is NOT proof that it applies today. Before you may call the meter unreadable you must, in this run, have worked the whole ladder below — at minimum the `-Once` command, `claude auth status`, and the local transcript reader — and shown the actual output of each. An unproven "the meter doesn't work here" is a fabricated stop condition, and so is one that stopped after the first failed command.
 
 **Surface it FIRST, not as a sign-off.** An unreadable meter is stop-condition (2), and it fires at the *baseline* reading in Step 2 — before the work — where it is an honest "I can't gate this run, here's what we do." It does not get to appear at the *end* of a turn, after you spent it on one deliverable, as the reason you're handing back. Discovering the fault at minute 0 and only mentioning it at the end is retroactively laundering a stop.
 
-**If the meter is genuinely unreadable, the run continues under a proxy bound.** Pick one and keep working:
+### Try the other ways to read it — five attempts, then stop trying
+
+"Unreadable" means **the primary read failed and five other routes also failed**, not that one command returned a stub. Work down this ladder. Cap each attempt at a couple of minutes — this is a fallback, not a debugging project. The moment one works, use it and get back to the actual work.
+
+**0. Primary (the one that failed):** `usage_monitor.ps1 -Once` → `claude -p "/usage"`.
+
+**1. `claude auth status`.** The CLI subprocess may have no token of its own even while the app session is fine — `{"loggedIn": false}` is the single most common cause of the stub. If it says logged out, the fix is `claude setup-token` (long-lived, best for unattended runs) or `claude auth login`; both need the user's own terminal.
+
+**2. Local transcript accounting — the workhorse.** Every assistant message in `~/.claude/projects/**/*.jsonl` carries a real `usage` block (`input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`) with an ISO timestamp. Sum the rolling 5-hour window for session and 7 days for weekly. No CLI, no auth, no network — this works when everything else returns a stub. Run the bundled reader:
+
+```bash
+python C:/Users/flori/.claude/skills/work-until-limit/scripts/usage_fallback.py --status-file .claude/usage-status.txt
+```
+
+It writes the same `key=value` status format as `usage_monitor.ps1`, so the stop logic reads either one.
+
+> **MANDATORY: deduplicate by `message.id`.** Transcripts replay history into multiple files when a session resumes, so the same assistant message appears many times. Measured on a real session: **313 records in the window for 147 actual messages — a naive sum overcounts by ~2.5×.** An overcount here silently ends the run early, which is the exact failure this skill exists to prevent. The bundled script dedupes; if you ever hand-roll this, dedupe or don't report the number.
+
+**3. `npx ccusage@latest blocks --json`** — an independent implementation of #2. Its real value is as a **cross-check**: two implementations agreeing is what turns an estimate into a reading. It was the disagreement with ccusage that exposed the duplicate-record bug above. If it disagrees with #2 by more than ~10%, trust neither until you find out why.
+
+**4. Interactive `/usage` in a PTY.** The headless `-p` path is the broken one; the interactive panel usually still renders the real percentages. Driving `claude` through a pty (winpty/expect) and scraping the panel is the only fallback that recovers the *true* percentage rather than a token proxy. Worth one attempt when the CLI exists and only `-p` is broken.
+
+**5. Ask the user for one number, then self-serve.** `.claude/usage-manual` holds a single line like `SESSION=42 AT=14:05`. The user reads the real figure off the app once; you calibrate against it and compute the rest yourself from #2. One question, not a running commentary — and you keep working while you wait for the answer.
+
+Too heavy to attempt mid-run, but worth naming if the user wants a permanent fix: a **statusline hook** (Claude Code pipes a JSON blob to your statusline command on every render — dump stdin to a file for a push-based feed that never involves `/usage`), **OpenTelemetry export** (`CLAUDE_CODE_ENABLE_TELEMETRY=1` plus a local OTLP collector), and the **Admin API** `usage_report/messages` endpoint (API-key orgs only; doesn't reflect subscription session limits).
+
+#### Calibrate the proxy — tokens are not percentages
+
+Routes 2 and 3 give **token volume and cost, not Anthropic's percentage**. They become a percentage with one anchor: ask the user for the real reading once (route 5), then divide.
+
+- **Use the cost basis, not the token count.** Anthropic's limits are cost-weighted, so cost handles a mixed-model session and prices cache reads at their real (cheap but non-zero) value. A raw billable-token count throws cache reads away entirely, and on a long session cache reads dominate the volume.
+- Write the anchor into `.claude/wul-config` as `DOLLARS_PER_PCT=...` and pass it to the script via `WUL_DOLLARS_PER_PCT` so it survives a compaction.
+- **Anchor high.** A number eyeballed at 10% carries ±5% relative error; re-anchoring at 40–50% tightens it a lot. Re-anchor opportunistically whenever the user mentions a real figure.
+- **Weekly needs its own anchor.** On a machine with little recent activity the weekly window contains the same data as the session window, so a session anchor tells you nothing about the weekly meter. Don't reuse it — either get a weekly anchor or report weekly as uncalibrated.
+- Measured reference point (Aug 2026, Opus-heavy session, Max plan): **≈$1.72 of list-priced spend per 1% of the session meter**, ≈50k billable tokens per percent. That is one machine on one plan — a starting sanity check, never a substitute for anchoring.
+
+**If the meter is genuinely unreadable after all of that, the run continues under a proxy bound.** Pick one and keep working:
 1. **Re-attempt the read every chunk.** Failures are often transient (a slow CLI, a stale token). The moment a reading comes back with `Current session: N%`, resume normal gating.
 2. **Recommend the ENFORCED wrapper.** `WORK_UNTIL_LIMIT_ENFORCED.bat` reads the meter in its own process; if the in-chat read is broken, the wrapper is the fix — recommend it *while you keep working*, not instead of working.
 3. **Adopt a default proxy budget and say so.** Absent user input, convert the ceiling into wall clock: **≈3 minutes of work per ceiling percent, capped at the session window** (so `work-until-limit 60` → work ~3 hours), tracked with [[work-until-time]]. State the proxy explicitly ("meter unreadable, proxying 60% as ~180 minutes, started 14:05, stopping ~17:05") and work the whole way.
@@ -133,7 +169,7 @@ The danger this design guards against: on high-context work a single chunk can m
 
 Loop:
 1. **Do ONE bounded chunk of useful work** — a single improvement, fix, analysis, or backtest. Keep chunks modest on purpose: the smaller the chunk, the smaller the worst-case jump between readings. If the next step is known to be heavy (a long backtest, a huge file read), treat that as its own chunk and check *before* launching it.
-2. **Take a fresh reading** with the same `-Once` command as Step 2. Do not rely on a timer or an old value — read the meter *now*.
+2. **Take a fresh reading** with the same `-Once` command as Step 2. Do not rely on a timer or an old value — read the meter *now*. If this run fell back to the transcript reader (`usage_fallback.py`), that is your per-chunk read — it costs nothing and is just as fresh. Retry the primary `-Once` every few chunks anyway; the stub is often transient, and the moment it returns real percentages you switch back to them and re-anchor the calibration.
 3. **Append the reading to a run-log, then compute the jump.** Log each reading so the deltas come from real history and overshoot is auditable afterward — not just held in your head across a long run:
    ```bash
    printf '%s SESSION=%s WEEK=%s\n' "$(date '+%H:%M:%S')" "$SESSION" "$WEEK" >> .claude/wul-log
