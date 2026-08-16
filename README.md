@@ -78,7 +78,11 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **research**: Search the web for a fix or an answer. Official docs, GitHub issues, Stack Overflow, Reddit, and it weighs the sources.
 - **flutter-design**: Build clean Material 3 (Material You) UI for Android in Flutter, with proper theming, dark mode, and accessibility.
 - **smoothener**: Make a UI feel smooth. Adds tasteful animations, transitions, and polish, with the timing, performance, and reduced motion rules that keep it from backfiring.
+- **unvibe**: Strip the AI-vibecoded slop look out of a UI and rebuild it as something a real designer would ship. Hunts the tells (harsh gradients, pure-white backgrounds, drop shadows on everything, three-card rows, bento grids, liquid glass, Inter/Geist/Space Grotesque, purple-and-black, emojis, sparkles, fake testimonials, em dashes, checkmark bullets, three pricing tiers) and replaces them with restrained, intentional, human choices.
 - **create-video**: Record and edit a real video end to end. Screen capture, transcribe and plan, FFmpeg cuts, Remotion overlays and motion graphics, music, social reframing, final render. Non-watermarked assets only.
+
+### Firmware and hardware
+- **port**: Port firmware to another architecture or board as a faithful 1:1 functional copy. Reverse-engineers a provided image (a `.bin`, and/or a vendor download link) with binwalk/Ghidra/strings to recover exactly what it does, then re-implements the same behavior on the target (e.g. Raspberry Pi 5) — same features, screens, protocols, peripherals, and quirks, just rebuilt for the new hardware. Say `port the architecture to rpi5` with a bin in the folder.
 - **sick**: Draft a short, professional message to call in sick.
 
 ### Modes and guardrails
