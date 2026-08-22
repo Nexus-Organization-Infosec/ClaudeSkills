@@ -80,6 +80,18 @@ Rules of thumb, for calibration (not hard gates): a real big change usually move
 
 **Caution on risky files does not excuse timidity everywhere.** Deliberately leaving incident-prone code alone (radio/bridge/anything that already bit you this session) is legitimate and correct — record it and move on. But that verdict applies to *those* files, not as blanket permission to make every *other* file's change small and safe. The files you *do* choose to change must get actual big changes, or the run isn't a big-change run. A sweep where the risky files were skipped (fine) **and** every touched file got a 20-line dedup (not fine) is an improve sweep wearing this skill's name.
 
+### Importance is not size — the "but this one matters a lot" loophole
+
+Once the "small but real" dodge is closed, the next one that opens is **importance-laundering**: taking a small structural change and arguing it's big because it's *valuable*. The tell is a sentence like *"this dedup is a big change because that duplicated block caused the two hardest live bugs this session"* or *"consolidating this is big because it's the incident-prone code."* All of that can be true — and none of it makes the change big.
+
+**Value, stakes, risk, and incident history are orthogonal to size.** They tell you a change is *worth making* (often first); they say nothing about whether it's *structurally large*. Merging two byte-for-byte-identical watch loops is a dedup whether or not that block once caused an outage — the outage makes fixing it **important**, not **big**. A one-line fix to the code that bricked the device is the most valuable change in the tree and still a one-line fix.
+
+So: *"this matters a lot"* is **never** an argument that a small change is a big one. When you catch yourself justifying a change's *bigness* by its *importance* — reaching for words like critical, incident, hardest-won, the exact code that broke — stop: you're rating its value, and value was never the question here. Two honest moves remain, the same two as always:
+- **File it as improve-tier** (valuable, real, kept — and correctly *not* counted as a big change), or
+- **Make it actually big** — if this incident-prone area deserves boldness, do the real thing: replace the imperative check-and-fix with a genuine declarative model, add the missing subsystem, change the approach — not just glue the two copies together and call the glue big because the copies mattered.
+
+A merge is a merge, a flag is a flag, a guard is a guard — the label doesn't upgrade because the surrounding code is load-bearing. Rate size by the diff's structure; rate importance separately and honestly; never let the second stand in for the first.
+
 ## What one file's big change is
 
 For the current file in the ordered list:
