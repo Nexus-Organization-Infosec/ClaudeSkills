@@ -104,4 +104,4 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 Most of these are behavioral. The skill text guides Claude, it is not an enforced lock. The ones that run real scripts (the shutdown, control, sound, and usage monitor) are Windows and PowerShell based.
 
 Sincerely,
-Qwavey from NEXUS
+Qwavey from NEXUS :)
