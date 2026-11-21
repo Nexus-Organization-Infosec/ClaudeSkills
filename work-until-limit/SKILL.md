@@ -140,7 +140,7 @@ Because `get_usage` costs nothing and is always fresh, the "unreadable meter" si
 If `get_usage` is unavailable, take the reading with the monitor in single-reading mode (`-Once`), **sourcing the pinned ceilings from `.claude/wul-config`** so the exact numbers are used every time (never typed from memory). Do it as one command so the sourced values are in scope:
 
 ```bash
-. .claude/wul-config; powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:/Users/flori/.claude/skills/work-until-limit/scripts/usage_monitor.ps1 -Once -Threshold ${SESSION:-0} -WeeklyThreshold ${WEEKLY:-0} -StatusFile .claude/usage-status.txt
+. .claude/wul-config; powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$HOME/.claude/skills/work-until-limit/scripts/usage_monitor.ps1" -Once -Threshold ${SESSION:-0} -WeeklyThreshold ${WEEKLY:-0} -StatusFile .claude/usage-status.txt
 ```
 
 Because the monitor writes `THRESHOLD`/`WEEKLYTHRESHOLD` and the `STOP` flag into the status file from exactly these pinned values, **your stop decision reads from the file, not from memory** — which is what keeps the ceiling from drifting mid-run.
@@ -202,7 +202,7 @@ That is a **stop**, dressed as compliance. Every clause of it is banned:
 **2. Local transcript accounting — the workhorse.** Every assistant message in `~/.claude/projects/**/*.jsonl` carries a real `usage` block (`input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`) with an ISO timestamp. Sum the rolling 5-hour window for session and 7 days for weekly. No CLI, no auth, no network — this works when everything else returns a stub. Run the bundled reader:
 
 ```bash
-python C:/Users/flori/.claude/skills/work-until-limit/scripts/usage_fallback.py --status-file .claude/usage-status.txt
+python "$HOME/.claude/skills/work-until-limit/scripts/usage_fallback.py" --status-file .claude/usage-status.txt
 ```
 
 It writes the same `key=value` status format as `usage_monitor.ps1`, so the stop logic reads either one.

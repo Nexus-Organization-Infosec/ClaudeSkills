@@ -14,7 +14,7 @@ A set of custom skills for Claude Code. Each folder holds one skill and a `SKILL
 
 Either way, start a new Claude Code session and type `/` to see them, or just describe what you want and the matching skill kicks in on its own.
 
-Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `play-sound-when-done`) contain scripts with hardcoded Windows paths under one username. Edit those paths to your own before using them.
+Heads up: a few skills (`shutdown-when-done`, `control`, `play-sound-when-done`) contain scripts with hardcoded Windows paths under one username. Edit those paths to your own before using them.
 
 ## The skills
 
@@ -82,6 +82,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `work-until-limit`, `pl
 - **unvibe**: Strip the AI-vibecoded slop look out of a UI and rebuild it as something a real designer would ship. Hunts the tells (harsh gradients, pure-white backgrounds, drop shadows on everything, three-card rows, bento grids, liquid glass, Inter/Geist/Space Grotesque, purple-and-black, emojis, sparkles, fake testimonials, em dashes, checkmark bullets, three pricing tiers) and replaces them with restrained, intentional, human choices.
 - **create-video**: Record and edit a real video end to end. Screen capture, transcribe and plan, FFmpeg cuts, Remotion overlays and motion graphics, music, social reframing, final render. Non-watermarked assets only.
 - **diagram**: Turn an idea, a process, a system or a chunk of code into a clear Mermaid diagram (flowchart, sequence, class, ER, state, gantt, mindmap, C4 sketch) that renders on the first try, saved as a .mmd file.
+- **pixel-relief**: Turn a photo into an animated WebGL pixel-relief hero image: thousands of small square pixels that fly together on load, tilt toward the mouse and lift near the cursor. Comes with a Python converter (photo to an embedded data URL) and a drop-in JS module (`PixelRelief.mount`); works offline and falls back to the plain photo without WebGL.
 
 ### Firmware and hardware
 - **port**: Port firmware to another architecture or board as a faithful 1:1 functional copy. Reverse-engineers a provided image (a `.bin`, and/or a vendor download link) with binwalk/Ghidra/strings to recover exactly what it does, then re-implements the same behavior on the target (e.g. Raspberry Pi 5) — same features, screens, protocols, peripherals, and quirks, just rebuilt for the new hardware. Say `port the architecture to rpi5` with a bin in the folder.
