@@ -1,6 +1,6 @@
 ---
 name: work-until-limit
-description: Work continuously until the account's usage quota reaches a set ceiling — a session ceiling, a weekly ceiling, or both — and DO NOT stop before it for any other reason (not "task done", not "exhausted findings", not "good enough", not "nothing left worth doing" — switch to other useful work instead). Shows a live percentage bar during the run, then stops cleanly at the ceiling. Invoked as "work-until-limit [<sessionPct>] [weekly <weeklyPct>] [limit-refresh] [shutdownwhendone]" — e.g. "work-until-limit 80" (stop at 80% session), "work-until-limit 90 weekly 90" (stop when session OR week hits 90%), "work-until-limit weekly 90" (weekly only), add "limit-refresh" to bridge an imminent limit reset and keep going, and "shutdownwhendone" to power off when it stops. Use whenever the user asks to keep working/improving until near the usage or weekly limit, run an autonomous session bounded by quota, or "go until I'm about to run out". Active ONLY for the message that explicitly invokes it — a new user message that does not re-invoke it ends the mode, so never carry it over from earlier messages or keep working toward a ceiling the user did not just ask for. Compatible with and hands off to the [[shutdown-when-done]] skill.
+description: Work continuously until the account's usage quota reaches a set ceiling — a session ceiling, a weekly ceiling, or both — and DO NOT stop before it for any other reason (not "task done", not "exhausted findings", not "good enough", not "nothing left worth doing" — switch to other useful work instead). Before any work starts it ALWAYS asks (via the AskUserQuestion tool) which areas to focus on — 3 project-specific areas, "Everything", plus the open "Other" field. Shows a live percentage bar during the run, then stops cleanly at the ceiling. Invoked as "work-until-limit [<sessionPct>] [weekly <weeklyPct>] [limit-refresh] [shutdownwhendone]" — e.g. "work-until-limit 80" (stop at 80% session), "work-until-limit 90 weekly 90" (stop when session OR week hits 90%), "work-until-limit weekly 90" (weekly only), add "limit-refresh" to bridge an imminent limit reset and keep going, and "shutdownwhendone" to power off when it stops. Use whenever the user asks to keep working/improving until near the usage or weekly limit, run an autonomous session bounded by quota, or "go until I'm about to run out". Active ONLY for the message that explicitly invokes it — a new user message that does not re-invoke it ends the mode, so never carry it over from earlier messages or keep working toward a ceiling the user did not just ask for. Compatible with and hands off to the [[shutdown-when-done]] skill.
 ---
 
 # Work Until Limit
@@ -62,11 +62,82 @@ The `wul-banked` file matters for resets — see "Resets bank your progress" in 
 
 The ceiling is **exactly** the number the user gave — never round it, approximate it, or substitute a remembered value. If you are ever unsure what it was, `cat .claude/wul-config`; do not guess. If the user said weekly 99, every check uses 99 — not 96, not "about 95."
 
-Also determine **what to work on**. Usually it's the task already in play (keep building/improving/validating it). If there's no obvious task, ask the user what to work on before starting — "work until the limit" needs something to work on.
+Also determine **what to work on**. Usually it's the task already in play (keep building/improving/validating it). The focus question in Step 1.5 settles where the effort goes — it is mandatory, see below.
+
+## Step 1.5: ALWAYS ask what to focus on — before any work starts (MANDATORY)
+
+Every single work-until-limit run begins with a focus question, asked with the **`AskUserQuestion` tool** (the built-in question tool — not plain chat text). No exceptions: not when the task seems obvious, not when `shutdownwhendone` is set, not when the run looks unattended. The user wants to steer every run, and this is the one moment they are guaranteed to be at the keyboard (they just invoked the skill). Ask it right after parsing the invocation, before the baseline reading and before any work.
+
+**Shape of the question — always exactly this:**
+
+- **Question text:** `Which areas should this run (to <ceiling>) focus on? Pick any.` — fill in the real ceiling, e.g. `to 75%` or `to 90% session / 95% weekly`.
+- **`multiSelect: true`** — the user may pick several.
+- **Option 1–3: three concrete focus areas tailored to THIS project.** Look at the project first (recent work in the conversation, the codebase, open ideas lists, Tasks.md, known bugs) and offer the three most relevant, distinct areas. Each gets a short label (1–5 words) and a one-line description that names what it actually covers in this project — e.g. `Multiplayer` → "Sync, joining, the other player's look and actions, bugs between the two PCs." Never generic filler like "Code quality" when the project has real named areas.
+- **Option 4: always `Everything`** — description like "No preference — rotate across all areas, highest value first."
+- **Option 5: the open field.** Don't add it yourself — `AskUserQuestion` always appends its own "Other" free-text choice, which is the user's open slot. (The tool allows max 4 options, which is exactly why the layout is 3 + Everything + the built-in Other.)
+
+You may add up to 3 further questions in the same `AskUserQuestion` call if they genuinely matter for this run (e.g. "Allowed to add new dependencies?", "Commit as you go?"), but the focus question is always the first one and always present.
+
+**Pin the answer** so it survives a long run and context compaction, exactly like the ceilings:
+
+```bash
+printf 'FOCUS=%s\n' "<the chosen labels and/or the user's free text, verbatim>" > .claude/wul-focus
+```
+
+**How the focus steers the run:**
+
+- Work the chosen areas **first and mostly**. With several picked, rotate between them. With `Everything`, use the normal rotation (Step 3) across the whole project.
+- Free text in "Other" is taken literally and wins over the presets if they conflict.
+- Running out of work *inside* the focus is still not a stop condition (see the three stop conditions). First go deeper in the focus area (tests, edge cases, hardening, polish of that area); only when that is genuinely exhausted, widen to adjacent areas — and say so in one line ("Multiplayer queue exhausted, widening to vehicles sync").
+- After a compaction or `/continue`, `cat .claude/wul-focus` instead of recalling the focus from memory.
+
+**This is a pre-run question, not a mid-run stop.** It is the only point where waiting for the user is correct — the run hasn't started yet. Every rule below about never stopping to ask applies from the moment the answer arrives. If the user skips the question (dismisses it without an answer), treat it as `Everything` and start.
+
+**ENFORCED mode:** the wrapper launches Claude headlessly and cannot show the question. If `.claude/wul-focus` exists, the run uses it; tell the user to run the focus question once in chat (or write the file) before double-clicking the .bat.
 
 ## Step 2: Take a baseline reading
 
-Before the first chunk, take one fresh reading so you know the starting point. Run the monitor in single-reading mode (`-Once`), **sourcing the pinned ceilings from `.claude/wul-config`** so the exact numbers are used every time (never typed from memory). Do it as one command so the sourced values are in scope:
+### PRIMARY METER: the `get_usage` tool (Claude desktop app)
+
+In the Claude desktop app there is a built-in tool **`mcp__ccd_session_mgmt__get_usage`** that returns the real usage card. Use it **first, every time**, for the baseline and for every per-chunk reading. It is deferred, so load it once per session with `ToolSearch` (`select:mcp__ccd_session_mgmt__get_usage`), then call it with no arguments.
+
+What it returns (real example):
+
+```json
+"plan": { "status": "ok", "plan": "Max", "windows": [
+  { "label": "5-hour limit",        "percentUsed": 40, "resetsAt": "2026-11-17T22:00:00Z", "resetsIn": "3h 23m" },
+  { "label": "Weekly · all models", "percentUsed": 6,  "resetsAt": "2026-11-24T15:00:00Z", "resetsIn": "6d 20h" },
+  { "label": "Weekly · Fable",      "percentUsed": 0,  ... } ] }
+```
+
+Map it like this:
+- **SESSION** = `percentUsed` of the window labelled **`5-hour limit`**.
+- **WEEK** = `percentUsed` of **`Weekly · all models`**. Per-model weekly windows (e.g. `Weekly · Fable`) are extra walls: if the model you're running on has its own weekly window, treat the **higher** of the two as WEEK.
+- **SESSION_RESET_MIN / WEEK_RESET_MIN** = minutes until that window's `resetsAt` (for `limit-refresh`).
+- `context.percentUsed` is the context window, **not** quota — never use it for the ceiling (it's only useful for knowing when compaction is near).
+
+Then write the same status file the rest of the skill reads, from the pinned ceilings, so the stop logic, the run-log and `/continue` all keep working:
+
+```bash
+. .claude/wul-config
+S=<5-hour percentUsed>; W=<weekly percentUsed>; P=$(( S > W ? S : W ))
+STOP=0; { [ "${SESSION:-0}" -gt 0 ] && [ "$S" -ge "$SESSION" ]; } && STOP=1; { [ "${WEEKLY:-0}" -gt 0 ] && [ "$W" -ge "$WEEKLY" ]; } && STOP=1
+printf 'STATUS=OK\nSOURCE=get_usage\nSESSION=%s\nWEEK=%s\nPERCENT=%s\nTHRESHOLD=%s\nWEEKLYTHRESHOLD=%s\nSTOP=%s\nSESSION_RESET_MIN=%s\nWEEK_RESET_MIN=%s\n' \
+  "$S" "$W" "$P" "${SESSION:-0}" "${WEEKLY:-0}" "$STOP" <sessionResetMin> <weekResetMin> > .claude/usage-status.txt
+```
+
+(STOP here is the plain reach check; the effective/banked and predictive rules in Step 3 still apply on top.)
+
+- `plan.status == "ok"` → use it. Done; skip the PowerShell monitor and the fallback ladder.
+- `"unavailable"` → read the `note`; if it says retrying helps, call again once. Still unavailable → fall back to the `-Once` monitor below.
+- `"not_applicable"` (API key / Bedrock / Vertex / gateway — no plan limits) → there is no quota meter at all; tell the user at the baseline and use the proxy bound from "An unreadable meter is not a licence to stop".
+- The tool doesn't exist (CLI outside the desktop app, ENFORCED wrapper) → use the `-Once` monitor below.
+
+Because `get_usage` costs nothing and is always fresh, the "unreadable meter" situation should almost never happen inside the desktop app — claiming it is unreadable without having called `get_usage` first is a fabricated stop condition.
+
+### FALLBACK METER: the PowerShell monitor
+
+If `get_usage` is unavailable, take the reading with the monitor in single-reading mode (`-Once`), **sourcing the pinned ceilings from `.claude/wul-config`** so the exact numbers are used every time (never typed from memory). Do it as one command so the sourced values are in scope:
 
 ```bash
 . .claude/wul-config; powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:/Users/flori/.claude/skills/work-until-limit/scripts/usage_monitor.ps1 -Once -Threshold ${SESSION:-0} -WeeklyThreshold ${WEEKLY:-0} -StatusFile .claude/usage-status.txt
@@ -122,7 +193,9 @@ That is a **stop**, dressed as compliance. Every clause of it is banned:
 
 "Unreadable" means **the primary read failed and five other routes also failed**, not that one command returned a stub. Work down this ladder. Cap each attempt at a couple of minutes — this is a fallback, not a debugging project. The moment one works, use it and get back to the actual work.
 
-**0. Primary (the one that failed):** `usage_monitor.ps1 -Once` → `claude -p "/usage"`.
+**0a. `get_usage` tool** (desktop app) — see Step 2. If it returned `ok`, you are not on this ladder at all.
+
+**0b. Primary CLI read (the one that failed):** `usage_monitor.ps1 -Once` → `claude -p "/usage"`.
 
 **1. `claude auth status`.** The CLI subprocess may have no token of its own even while the app session is fine — `{"loggedIn": false}` is the single most common cause of the stub. If it says logged out, the fix is `claude setup-token` (long-lived, best for unattended runs) or `claude auth login`; both need the user's own terminal.
 
@@ -169,7 +242,7 @@ The danger this design guards against: on high-context work a single chunk can m
 
 Loop:
 1. **Do ONE bounded chunk of useful work** — a single improvement, fix, analysis, or backtest. Keep chunks modest on purpose: the smaller the chunk, the smaller the worst-case jump between readings. If the next step is known to be heavy (a long backtest, a huge file read), treat that as its own chunk and check *before* launching it.
-2. **Take a fresh reading** with the same `-Once` command as Step 2. Do not rely on a timer or an old value — read the meter *now*. If this run fell back to the transcript reader (`usage_fallback.py`), that is your per-chunk read — it costs nothing and is just as fresh. Retry the primary `-Once` every few chunks anyway; the stub is often transient, and the moment it returns real percentages you switch back to them and re-anchor the calibration.
+2. **Take a fresh reading** — call `get_usage` again (and rewrite the status file from it), or the same `-Once` command as Step 2 if `get_usage` isn't available. Do not rely on a timer or an old value — read the meter *now*. If this run fell back to the transcript reader (`usage_fallback.py`), that is your per-chunk read — it costs nothing and is just as fresh. Retry the primary `-Once` every few chunks anyway; the stub is often transient, and the moment it returns real percentages you switch back to them and re-anchor the calibration.
 3. **Append the reading to a run-log, then compute the jump.** Log each reading so the deltas come from real history and overshoot is auditable afterward — not just held in your head across a long run:
    ```bash
    printf '%s SESSION=%s WEEK=%s\n' "$(date '+%H:%M:%S')" "$SESSION" "$WEEK" >> .claude/wul-log
@@ -312,7 +385,7 @@ If you genuinely believe there is *no* real, non-churn work left anywhere in the
 The escape hatch above gets abused, so it is fenced hard:
 
 - **If you can name a concrete thing you could build or fix, you have NOT run out of work — go do that thing.** Writing "if you'd rather I keep going, I could add QR verification or chat export, just say so" is a confession that real work existed and you chose not to do it. That is a violation, not a courtesy. Name it and *build* it; don't offer it and quit.
-- **Unattended runs cannot stop-and-ask.** If the user is away (they invoked `shutdownwhendone`, said goodnight, went to bed, or simply is not answering), there is nobody to answer the question, so "asking" guarantees the run dies right there while the budget sits unspent — the exact outcome this mode exists to prevent. When unattended, do not ask: pick the next item off the rotation and keep working to the ceiling.
+- **Unattended runs cannot stop-and-ask.** (The one exception is the mandatory Step 1.5 focus question, which is asked *before* the run starts, while the user is still at the keyboard.) If the user is away (they invoked `shutdownwhendone`, said goodnight, went to bed, or simply is not answering), there is nobody to answer the question, so "asking" guarantees the run dies right there while the budget sits unspent — the exact outcome this mode exists to prevent. When unattended, do not ask: pick the next item off the rotation and keep working to the ceiling.
 - **"Too risky to build unsupervised" is not a stop reason.** It is a reason to pick *different* work. Skip the risky item (new deps, hardware, anything you can't verify) and take safe, verifiable work instead: tests, edge cases, hardening, profiling, docs, refactors, smaller features. There is always safe work.
 - **The `/full-speed` "no padding / no make-work" rule does NOT authorize stopping here either.** Same trap as `/improve`, same answer: it bans *manufactured* work inside an activity; it never bans *continuing the run*. Under `work-until-limit`, work up to the ceiling is **required work**, not padding — the user asked for it, so it is by definition not waste. Reaching for `/full-speed`, `/improve`, or any "don't do useless work" instruction as grounds to end the run early is misreading all of them, and it is banned.
 - The floor the user set is a **commitment, not a target you may negotiate down.** Stopping at 28% of a 45% run is a 38% shortfall on what they asked for, delivered while they slept and could not correct you.
