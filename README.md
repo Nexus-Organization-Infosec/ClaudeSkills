@@ -48,6 +48,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `play-sound-when-done`)
 - **swarm-analyze**: The read-only version of swarm. Parallel agents investigate the project and report every finding to the control agent (Opus 4.8), which triages each one (fix / skip / needs your decision) before anything is changed. Analysis first, judged, then only the approved fixes get made.
 
 ### Testing and verifying
+- **judge**: Get an honest verdict on a project on a 10-level scale, from Broken (1) to Perfect (10). It runs the build, tests and linter itself instead of trusting claims, scores each dimension with evidence, and caps the overall level by the one property the project exists for, so great engineering around an unproven core can't be rated fit for real use. Ends with concrete steps to the next level. Say `judge strict` to also list every claim it couldn't verify.
 - **test**: Run the project's tests and report the real result. Detects the framework, runs the suite or a targeted subset, gives an honest pass/fail count with the actual failures, and fixes root causes if asked. Never fakes green, never weakens a test to pass.
 
 ### Fixing and hunting
