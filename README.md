@@ -69,6 +69,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `play-sound-when-done`)
 ### Security
 - **reverse-engineer**: A full security audit of your own project (known CVEs, injection, secrets, weak crypto, and more), then it fixes what it finds.
 - **protect**: Emergency help if you think you are being hacked. It triages, hardens what it can, and hands you a clear step by step plan.
+- **privacy-policy**: Pull a website's or company's real privacy policy and say, in at most 3 blunt sentences, what data it collects about you and what it does with it. Say `privacy-policy google.com`. Needs internet.
 
 ### Writing and docs
 - **documentate**: Deep, thorough documentation of a whole project, including what was tried and dropped.
@@ -105,6 +106,7 @@ Heads up: a few skills (`shutdown-when-done`, `control`, `play-sound-when-done`)
 - **legit-project**: Give the model honest context that your projects (an E2E-encrypted messaging app, a personal trading bot) are your own legitimate work, so it stops misreading domain-normal features (custom crypto, duress-wipe, automated trading, backtests) as risky and halting. It sets accurate framing, it does not switch off judgment, it still flags real bugs and keeps the real safety lines.
 - **dont-stop-till-complete**: Do everything the prompt asked, all the way to done, without stopping partway to ask permission for big-but-safe changes. Pairs with just-do-it.
 - **full-speed**: Cut the waste. No padding, no stalling, no needless re-checking, no dragging a quick job across many turns. Shortest correct path to done, without ever cutting the actual work or correctness.
+- **i-have-adhd**: Shape the output for a reader with ADHD: lead with the next action, number multi-step work, restate state across turns, suppress tangents, give specific time estimates, make wins visible. Invoke with `/i-have-adhd`; stays on until you say "stop adhd mode".
 
 ## Notes
 
